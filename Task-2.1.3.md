@@ -10,7 +10,7 @@ All methods described above may best be applied to different types of microbiome
  - Python >= v3.6 
  - Python v2.7 (required by CheckM and GTDB-Tk)
  - Perl >= v5.16
- - Cromwell v43
+ - Cromwell v44
  
 #### Third party software used/other dependencies:
  - conda v4.7.10

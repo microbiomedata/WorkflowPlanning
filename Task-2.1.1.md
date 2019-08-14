@@ -8,7 +8,7 @@ The shotgun metagenome assembly and annotation workflow will be evaluated for cu
  - CentOS 7
  - Python >= v3.6 
  - Perl >= v5.16
- - Cromwell v43
+ - Cromwell v44
  
 #### Third party software used/other dependencies:
  - conda v4.7.10
