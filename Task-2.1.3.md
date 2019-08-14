@@ -8,7 +8,7 @@ All methods described above may best be applied to different types of microbiome
 #### Environment:
  - CentOS 7
  - Python >= v3.6 
- - Python v2.7
+ - Python v2.7 (required by CheckM and GTDB-Tk)
  - Perl >= v5.16
  - Cromwell v43
  
@@ -21,7 +21,7 @@ All methods described above may best be applied to different types of microbiome
  - GTDB-Tk v0.3.2
 
 #### Hardware requirements:
- - > 100 Gb of memory
+ -  ```>``` 100 Gb of memory
  
 #### Database:
  - gtdbtk_r89_data
