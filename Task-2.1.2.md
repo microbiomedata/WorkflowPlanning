@@ -10,7 +10,7 @@ An NMDC compliant containerized CWL/WDL workflow for read-based shotgun metageno
  - Python v3.6 
  - Pandas v2.2
  - Biom 2.1.7
- - Cromwell v.xxx
+ - Cromwell v44
  
 #### Third party software used/other dependencies:
  - minimap2 v2.17
