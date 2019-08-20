@@ -13,10 +13,11 @@ An NMDC compliant containerized CWL/WDL workflow for read-based shotgun metageno
  - Cromwell v44
  
 #### Third party software used/other dependencies:
- - minimap2 v2.17
+ - minimap2 v2.17 (MIT License)
+ - GOTTCHA2 (GPL3)
 
 #### Source:
- - https://gitlab.com/poeli/GOTTCHA2
+ - https://github.com/poeli/GOTTCHA2
 
 #### Database:
  - NCBI Refseq release 90
