@@ -8,15 +8,15 @@ The shotgun metagenome assembly and annotation workflow will be evaluated for cu
  - CentOS 7
  - Python >= v3.6 
  - Perl >= v5.16
- - Cromwell v44
+ - Cromwell v44 (BSD 3-Clause)
  
 #### Third party software used/other dependencies:
- - conda v4.7.10
- - MEGAHIT v1.2.8
- - MetaSPades v3.13.1
- - IDBA-UD v1.1.3
- - metaQuast v2.2
- - Prokka v1.14.0
+ - conda v4.7.10 (BSD 3-Clause)
+ - MEGAHIT v1.2.8 (GPLv3)
+ - MetaSPades v3.13.1 (GPLv2)
+ - IDBA-UD v1.1.3 (GPLv2)
+ - metaQuast v2.2 (GPLv2)
+ - Prokka v1.14.0 (GPLv2)
  
 #### Database:
  - database come with Prokka annotation software
