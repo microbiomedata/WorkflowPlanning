@@ -10,15 +10,15 @@ All methods described above may best be applied to different types of microbiome
  - Python >= v3.6 
  - Python v2.7 (required by CheckM and GTDB-Tk)
  - Perl >= v5.16
- - Cromwell v44
+ - Cromwell v44 (BSD 3-Clause)
  
 #### Third party software used/other dependencies:
- - conda v4.7.10
- - MaxBin2 v2.2.7
- - MetaBat2 v2.13
- - dRep v2.3.2
- - CheckM v1.0.18
- - GTDB-Tk v0.3.2
+ - conda v4.7.10 (BSD 3-Clause)
+ - MaxBin2 v2.2.7 (BSD)
+ - MetaBat2 v2.13 (BSD-3-Clause)
+ - dRep v2.3.2 (MIT)
+ - CheckM v1.0.18 (GPLv3)
+ - GTDB-Tk v0.3.2 (GPLv3)
 
 #### Hardware requirements:
  -  ```>``` 100 Gb of memory
