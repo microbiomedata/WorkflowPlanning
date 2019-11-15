@@ -84,7 +84,6 @@ task binning{
 	String outdir
 	Int cpu
 	command {
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		#mkdir -p ${outdir}
 		if [ -f "${outdir}/INITIAL_BINNING/binning.finished" ]; then exit; fi
 		## require _1.fastq and _2.fastq format
@@ -110,8 +109,7 @@ task binning{
 	}
 	runtime{ memory: "20 GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
-           #database: '/home/andylo/data'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
     }
 
 }
@@ -145,8 +143,7 @@ task refine_bins{
 	}
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
-           database: '/home/andylo/data'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
 	}
 }
 
@@ -176,9 +173,9 @@ task blobology{
 	}
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
              # require NCBI_NT_DB database
-             # database:
+             # database: '/global/project/projectdirs/m3408/aim2/database'
     }
 }
 
@@ -193,7 +190,6 @@ task abundance{
 	Int minCompletion =  70
 	Int maxContamination = 10
 	command{
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		if [ -f "${PairedReads[0]}" ]; then 
 			ln -fs ${PairedReads[0]} read_1.fastq
 			ln -fs ${PairedReads[1]} read_2.fastq
@@ -209,7 +205,7 @@ task abundance{
 	}
     runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
     }
 }
 
@@ -222,7 +218,6 @@ task reassemble{
 	Int minCompletion =  70
 	Int maxContamination = 10
 	command{
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
 		path=${refinebin_pwd}
@@ -238,8 +233,8 @@ task reassemble{
 	}
     runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
-           database: '/home/andylo/data'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
+           database: '/global/project/projectdirs/m3408/aim2/database''
     }
 }
 
@@ -249,7 +244,6 @@ task bin_taxonomy{
 	String outdir
 	File bin_pwd
 	command{
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
 			metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
@@ -262,9 +256,9 @@ task bin_taxonomy{
 	}
 	runtime{ memory: mem + "GB"
              cpu: cpu
-             docker: 'bioedge/nmdc_mags'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
               # NT database
-             # database: '/home/andylo/data'
+             # database: '/global/project/projectdirs/m3408/aim2/database''
 	}
 }
 
@@ -274,7 +268,6 @@ task bin_annotation{
 	String outdir
 	File bin_pwd
 	command{
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
 			metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/reassembled_bins
@@ -289,7 +282,7 @@ task bin_annotation{
 
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
 	}
 }
 
