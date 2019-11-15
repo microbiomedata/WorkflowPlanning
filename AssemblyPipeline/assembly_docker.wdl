@@ -67,8 +67,7 @@ task qc{
 	}
 	runtime{ memory: "20 GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags'
-             database: '/Users/chien-chi/Projects/NMDC/databases'
+             docker: 'bioedge/nmdc_mags:withchkmdb'
                  }
 
 }
@@ -102,8 +101,7 @@ task run_assembly{
 	}
         runtime{ memory: mem + "GB"
                  cpu: cpu
-                 docker: 'bioedge/nmdc_mags'
-                 database: '/Users/chien-chi/Projects/NMDC/databases'
+                 docker: 'bioedge/nmdc_mags:withchkmdb'
                 }
 }
 

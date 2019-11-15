@@ -1,9 +1,0 @@
-{
-  "assembly.cpu" : 16,
-  "assembly.outdir": "/Users/chien-chi/Projects/NMDC",
-  "assembly.DoQC" : true,
-  "assembly.QCopts" :"",
-  "assembly.Assembler" :"megahit",
-  "assembly.AssemblerOpts": "",
-  "assembly.PairedReads":["/Users/chien-chi/Projects/NMDC/Ecoli_10x_1.fastq","/Users/chien-chi/Projects/NMDC/Ecoli_10x_2.fastq"]
-}

@@ -1,9 +1,0 @@
-{
-  "MAGgeneration.cpu": 16,
-  "MAGgeneration.DoReassemble": false,
-  "MAGgeneration.Doblobology": false,
-  "MAGgeneration.Dobin_taxonomy": false,
-  "MAGgeneration.outdir":"/panfs/biopan01/scratch-218819/projects/NMDC/MAGs/MAG_output",
-  "MAGgeneration.PairedReads":["/panfs/biopan01/scratch-218819/projects/NMDC/MAGs/QC_1.fastq","/panfs/biopan01/scratch-218819/projects/NMDC/MAGs/QC_2.fastq"],
-  "MAGgeneration.Contig":"/panfs/biopan01/scratch-218819/projects/NMDC/MAGs/final_assembly.fasta"
-}
