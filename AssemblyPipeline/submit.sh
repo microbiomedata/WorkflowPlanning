@@ -5,8 +5,6 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task 24
-#SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=lo.chienchi@gmail.com
 #SBATCH --constraint=knl
 #SBATCH --account=m3408
 #SBATCH --job-name=asm_SRR2126941
