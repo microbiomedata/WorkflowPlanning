@@ -234,7 +234,7 @@ task reassemble{
     runtime{ memory: mem + "GB"
                 cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
-           database: '/global/project/projectdirs/m3408/aim2/database''
+           #database: '/global/project/projectdirs/m3408/aim2/database'
     }
 }
 
@@ -258,7 +258,7 @@ task bin_taxonomy{
              cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
               # NT database
-             # database: '/global/project/projectdirs/m3408/aim2/database''
+             # database: '/global/project/projectdirs/m3408/aim2/database'
 	}
 }
 
