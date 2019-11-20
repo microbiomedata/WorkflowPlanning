@@ -20,7 +20,9 @@ RUN conda config --add channels defaults && \
     rm checkm_data_2015_01_16.tar.gz && \
     conda install -y -c ursky metawrap-mg FaQCs idba && \
     conda remove --force -y -c bioconda checkm-genome blast && \
+    pip install --upgrade pip && \
     pip install checkm-genome && \
+    pip install --upgrade --force-reinstall matplotlib && \
     wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/ncbi-blast-2.9.0+-x64-linux.tar.gz && \
     tar xvzf ncbi-blast-2.9.0+-x64-linux.tar.gz && cp ncbi-blast-2.9.0+/bin/* /opt/conda/bin && \
     apt update && apt install -y procps && \
