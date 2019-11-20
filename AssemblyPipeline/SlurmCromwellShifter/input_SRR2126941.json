@@ -1,5 +1,5 @@
 {
-  "assembly.cpu" : 20,
+  "assembly.cpu" : 60,
   "assembly.outdir": "/global/project/projectdirs/m3408/aim2/metagenome/assembly/SRR2126941",
   "assembly.DoQC" : true,
   "assembly.QCopts" :"",

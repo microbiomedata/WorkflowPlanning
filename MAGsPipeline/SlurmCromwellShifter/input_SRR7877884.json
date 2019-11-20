@@ -1,5 +1,5 @@
 {
-  "MAGgeneration.cpu": 30,
+  "MAGgeneration.cpu": 60,
   "MAGgeneration.DoReassemble": false,
   "MAGgeneration.Doblobology": false,
   "MAGgeneration.Dobin_taxonomy": false,
