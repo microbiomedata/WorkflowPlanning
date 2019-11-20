@@ -116,6 +116,7 @@ task make_output{
 		AssemblyPath=`dirname ${contig}`
 		mv -f $QCpath ${outdir}/
 		mv -f $AssemblyPath ${outdir}/
+		chmod 764 -R  ${outdir}
 	}
 }
 

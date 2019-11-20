@@ -325,5 +325,6 @@ task make_output{
 			mv -f $taxonomy_path ${outdir}/
 			[ ! -z "$taxonomy_path" ] && rm -rf $taxonomy_path/../../
 		fi
+		chmod 764 -R ${outdir}
 	}
 }
