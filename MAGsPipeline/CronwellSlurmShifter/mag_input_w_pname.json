@@ -1,0 +1,10 @@
+{
+  "MAGgeneration.projectName":"SRR2126941",
+  "MAGgeneration.cpu": 60,
+  "MAGgeneration.DoReassemble": false,
+  "MAGgeneration.Doblobology": false,
+  "MAGgeneration.Dobin_taxonomy": false,
+  "MAGgeneration.outdir":"/global/project/projectdirs/m3408/aim2/metagenome/MAGs/SRR2126941",
+  "MAGgeneration.PairedReads":["/global/project/projectdirs/m3408/aim2/benchmark_data/metagenome/SRR2126941.1.fastq.gz","/global/project/projectdirs/m3408/aim2/benchmark_data/metagenome/SRR2126941.2.fastq.gz"],
+  "MAGgeneration.Contig":"/global/project/projectdirs/m3408/aim2/metagenome/assembly/SRR2126941/assembly/final_assembly.fasta"
+}

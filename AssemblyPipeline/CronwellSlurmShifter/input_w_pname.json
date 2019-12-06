@@ -1,0 +1,10 @@
+{
+  "assembly.projectName":"SRR2126941",
+  "assembly.cpu" : 60,
+  "assembly.outdir": "/global/project/projectdirs/m3408/aim2/metagenome/assembly/SRR2126941",
+  "assembly.DoQC" : true,
+  "assembly.QCopts" :"",
+  "assembly.Assembler" :"megahit",
+  "assembly.AssemblerOpts": "",
+  "assembly.PairedReads":["/global/project/projectdirs/m3408/aim2/benchmark_data/metagenome/SRR2126941.1.fastq.gz","/global/project/projectdirs/m3408/aim2/benchmark_data/metagenome/SRR2126941.2.fastq.gz"]
+}
