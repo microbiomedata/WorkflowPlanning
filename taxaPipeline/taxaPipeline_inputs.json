@@ -1,0 +1,20 @@
+{
+  "taxaProfiler.enabled_tools": {
+    "gottcha2": true,
+    "kraken2": true,
+    "centrifuge": true
+  },
+  "taxaProfiler.db": {
+    "gottcha2": "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/database/gottcha2/RefSeq-r90.cg.BacteriaArchaeaViruses.species.fna",
+    "kraken2": "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/database/kraken2/",
+    "centrifuge": "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/database/centrifuge/p_compressed"
+  },
+  "taxaProfiler.reads": [
+    "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/Zaire_ebolavirus/SRR1553609_1.fastq.gz",
+    "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/Zaire_ebolavirus/SRR1553609_2.fastq.gz"
+  ],
+  "taxaProfiler.paired": true,
+  "taxaProfiler.prefix": "SRR1553609_test",
+  "taxaProfiler.outdir": "/global/project/projectdirs/m3408/aim2/metagenome/taxa_profiling/SRR1553609_test",
+  "taxaProfiler.cpu": 4
+}
