@@ -1,6 +1,6 @@
-import "taxaProfilerTasks.wdl" as tp
+import "ReadbasedAnalysisTasks.wdl" as tp
 
-workflow taxaProfiler {
+workflow ReadbasedAnalysis {
     Map[String, Boolean] enabled_tools
     Map[String, String] db
     Array[File] reads
