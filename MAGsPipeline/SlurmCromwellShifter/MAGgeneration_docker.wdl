@@ -88,8 +88,14 @@ task binning{
 		if [ -f "${outdir}/INITIAL_BINNING/binning.finished" ]; then exit; fi
 		## require _1.fastq and _2.fastq format
 		if [ -f "${PairedReads[0]}" ]; then
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
+			if [ -f "${PairedReads[1]}" ]; then
+				ln -fs ${PairedReads[0]} read_1.fastq
+				ln -fs ${PairedReads[1]} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
 			metawrap binning -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
 		fi
 		if [ -f "${SingleRead}" ]; then
@@ -157,9 +163,15 @@ task blobology{
 	File? SingleRead
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
-	if [ -f "${PairedReads[0]}" ]; then
-            ln -fs ${PairedReads[0]} read_1.fastq
-            ln -fs ${PairedReads[1]} read_2.fastq
+		if [ -f "${PairedReads[0]}" ]; then
+            if [ -f "${PairedReads[1]}" ]; then
+				ln -fs ${PairedReads[0]} read_1.fastq
+				ln -fs ${PairedReads[1]} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
         fi      
         if [ -f "${SingleRead}" ]; then
             ln -fs ${SingleRead} read.fastq
@@ -191,10 +203,16 @@ task abundance{
 	Int maxContamination = 10
 	command{
 		if [ -f "${PairedReads[0]}" ]; then 
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
-        	fi      
-        	if [ -f "${SingleRead}" ]; then
+			if [ -f "${PairedReads[1]}" ]; then
+				ln -fs ${PairedReads[0]} read_1.fastq
+				ln -fs ${PairedReads[1]} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
+        fi      
+        if [ -f "${SingleRead}" ]; then
 			ln ${SingleRead} read.fastq
 		fi
 		path=${refinebin_pwd}
@@ -220,8 +238,18 @@ task reassemble{
 	command{
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
+		if [ -f "${PairedReads[0]}" ]; then 
+			if [ -f "${PairedReads[1]}" ]; then
+				ln -fs ${PairedReads[0]} read_1.fastq
+				ln -fs ${PairedReads[1]} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
+        fi   
 		path=${refinebin_pwd}
-		metawrap reassemble_bins -o BIN_REASSEMBLY -1 ${PairedReads[0]} -2 ${PairedReads[1]} -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
+		metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
 	}
 
