@@ -177,7 +177,7 @@ task blobology{
             ln -fs ${SingleRead} read.fastq
         fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
+		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
 	}
 	
 	output {
@@ -233,7 +233,7 @@ task reassemble{
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 ${PairedReads[0]} -2 ${PairedReads[1]} -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
+		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 ${PairedReads[0]} -2 ${PairedReads[1]} -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
 	}
 
@@ -258,9 +258,9 @@ task bin_taxonomy{
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
 		else
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
 		fi
 	}
 	output{
