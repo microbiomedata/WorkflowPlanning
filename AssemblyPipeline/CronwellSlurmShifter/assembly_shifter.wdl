@@ -50,19 +50,18 @@ task qc{
 	Int cpu
 	String projectName
 	String outdir
+	Int pairedNumber = length(QCPairedReads)
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		#mkdir -p ${outdir}
-		if [ -f "${QCPairedReads[0]}" ]; then
-			if [ -f "${QCPairedReads[1]}" ]; then
-				shifter --image=docker:bioedge/nmdc_mags:withchkmdb FaQCs -1 ${QCPairedReads[0]} -2 ${QCPairedReads[1]} -d QC -t ${cpu} ${opts}
-			else
-				# presume interleaved format
-				mkdir -p QC
-				seqtk seq -1 ${QCPairedReads[0]} > QC/read_1.fastq
-				seqtk seq -2 ${QCPairedReads[0]} > QC/read_2.fastq
-				shifter --image=docker:bioedge/nmdc_mags:withchkmdb FaQCs -1 QC/read_1.fastq -2 QC/read_2.fastq -d QC -t ${cpu} ${opts}
-			fi
+		if [ ${pairedNumber} -eq 2 ]; then
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb FaQCs -1 ${sep=" -2 " QCPairedReads} -d QC -t ${cpu} ${opts}
+		else
+			# presume interleaved format
+			mkdir -p QC
+			seqtk seq -1 ${QCPairedReads[0]} > QC/read_1.fastq
+			seqtk seq -2 ${QCPairedReads[0]} > QC/read_2.fastq
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb FaQCs -1 QC/read_1.fastq -2 QC/read_2.fastq -d QC -t ${cpu} ${opts}
 		fi
 		if [ -f "${QCSingleRead}" ]; then
 			shifter --image=docker:bioedge/nmdc_mags:withchkmdb FaQCs -u ${QCSingleRead} -d QC -t ${cpu} ${opts}
@@ -95,19 +94,18 @@ task run_assembly{
  	Int minLen = 500
 	String outdir
 	String projectName
+	Int pairedNumber = length(PairedReads)
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
 		#mkdir -p ${outdir}
-		if [ -f "${PairedReads[0]}" ]; then
-			if [ -f "${PairedReads[1]}" ]; then
-				shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap assembly -1 ${PairedReads[0]} -2 ${PairedReads[1]} -l ${minLen} -o assembly -m ${mem}  ${"--" + assembler} -t ${cpu} 
-			else
-				# presume interleaved format
-				mkdir -p assembly
-				seqtk seq -1 ${PairedReads[0]} > assembly/read_1.fastq
-				seqtk seq -2 ${PairedReads[0]} > assembly/read_2.fastq
-				shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap assembly -1 assembly/read_1.fastq -2 assembly/read_2.fastq -l ${minLen} -o assembly -m ${mem}  ${"--" + assembler} -t ${cpu}
-			fi
+		if [ ${pairedNumber} -eq 2 ]; then
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap assembly -1 ${sep=" -2 " PairedReads} -l ${minLen} -o assembly -m ${mem}  ${"--" + assembler} -t ${cpu} 
+		else
+			# presume interleaved format
+			mkdir -p assembly
+			seqtk seq -1 ${PairedReads[0]} > assembly/read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > assembly/read_2.fastq
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap assembly -1 assembly/read_1.fastq -2 assembly/read_2.fastq -l ${minLen} -o assembly -m ${mem}  ${"--" + assembler} -t ${cpu}
 		fi
 		## Not support single end reads
 		#if [ -f "${SingleRead}" ]; then

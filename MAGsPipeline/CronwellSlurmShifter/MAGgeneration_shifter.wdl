@@ -93,14 +93,14 @@ task binning{
 	String outdir
 	Int cpu
 	String projectName
+	Int pairedNumber = length(PairedReads)
 	command {
 		#mkdir -p ${outdir}
 		if [ -f "${outdir}/INITIAL_BINNING/binning.finished" ]; then exit; fi
 		## require _1.fastq and _2.fastq format
 		if [ -f "${PairedReads[0]}" ]; then
-			if [ -f "${PairedReads[1]}" ]; then
-				ln -fs ${PairedReads[0]} read_1.fastq
-				ln -fs ${PairedReads[1]} read_2.fastq
+			if [ ${pairedNumber} -eq 2 ]; then
+				ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
 			else
 				# presume interleaved format
 				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
@@ -173,21 +173,19 @@ task blobology{
 	Array[File] PairedReads
 	File? SingleRead
 	String projectName
+	Int pairedNumber = length(PairedReads)
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
-		if [ -f "${PairedReads[0]}" ]; then
-			if [ -f "${PairedReads[1]}" ]; then
-				ln -fs ${PairedReads[0]} read_1.fastq
-				ln -fs ${PairedReads[1]} read_2.fastq
-			else
-				# presume interleaved format
-				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
-				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
-			fi
-        fi      
-        if [ -f "${SingleRead}" ]; then
-            ln -fs ${SingleRead} read.fastq
-        fi
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
+		if [ -f "${SingleRead}" ]; then
+			ln -fs ${SingleRead} read.fastq
+ 		fi
 		path=${refinebin_pwd}
 		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
 	}
@@ -212,17 +210,15 @@ task abundance{
 	String projectName
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
-		if [ -f "${PairedReads[0]}" ]; then 
-			if [ -f "${PairedReads[1]}" ]; then
-				ln -fs ${PairedReads[0]} read_1.fastq
-				ln -fs ${PairedReads[1]} read_2.fastq
-			else
-				# presume interleaved format
-				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
-				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
-			fi
-        fi      
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+        	fi      
 		if [ -f "${SingleRead}" ]; then
 			ln ${SingleRead} read.fastq
 		fi
@@ -247,19 +243,17 @@ task reassemble{
 	File refinebin_pwd
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
-		if [ -f "${PairedReads[0]}" ]; then 
-			if [ -f "${PairedReads[1]}" ]; then
-				ln -fs ${PairedReads[0]} read_1.fastq
-				ln -fs ${PairedReads[1]} read_2.fastq
-			else
-				# presume interleaved format
-				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
-				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
-			fi
-        fi   
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
 		path=${refinebin_pwd}
 		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
