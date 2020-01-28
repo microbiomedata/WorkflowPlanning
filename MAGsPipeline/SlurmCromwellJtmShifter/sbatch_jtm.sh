@@ -16,7 +16,7 @@
 #export OMP_PLACES=threads
 #export OMP_PROC_BIND=spread
 
-cd /global/cfs/projectdirs/m3408/aim2/metagenome/assembly
+cd /global/cfs/projectdirs/m3408/aim2/metagenome/MAGs
 
 export JTM_HOST_NAME=cori
 # starting JTM
