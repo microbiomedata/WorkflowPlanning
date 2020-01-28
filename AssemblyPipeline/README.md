@@ -1,7 +1,7 @@
 # The Metagenome Assembly Pipeline
 
 ## Summary
-$This workflow is developed by Brian Foster at JGI and original from his [repo](https://gitlab.com/bfoster1/wf_templates/tree/master/templates). It take paired-end reads runs reads quailty trimming, artifact removal, linker-trimming, adapter trimming, and spike-in/host removal by rqcfilter (BBTools:38.44), then error corrected by bbcms (BBTools). The clean reads are assembled by MetaSpades. After assembly, the reads are mapped back to contigs by bbmap (BBTools) for coverage information.
+This workflow is developed by Brian Foster at JGI and original from his [repo](https://gitlab.com/bfoster1/wf_templates/tree/master/templates). It take paired-end reads runs reads quailty trimming, artifact removal, linker-trimming, adapter trimming, and spike-in/host removal by rqcfilter (BBTools:38.44), then error corrected by bbcms (BBTools). The clean reads are assembled by MetaSpades. After assembly, the reads are mapped back to contigs by bbmap (BBTools) for coverage information.
 
 ## Running Workflow in Cromwell
 You should run this on cori. There are three ways to run the workflow.  
@@ -18,6 +18,7 @@ Description of the files in each sud-directory:
 ## The Docker image and Dockerfile can be found here
 
 [bryce911/bbtools:38.44](https://hub.docker.com/r/bryce911/bbtools)
+
 [bryce911/spades:3.13.0](https://hub.docker.com/r/bryce911/spades)
 
 
