@@ -34,7 +34,7 @@ task read_mapping_pairs{
     String filename_cov="covstats.txt"
     String dollar="$"
     runtime{ mem: "120GB"
-             cpu: 32
+             cpu: 16
 	jobname: "RMP_jgi_meta"
     }
 
@@ -70,7 +70,7 @@ task create_agp {
     String filename_agp="${prefix}.agp"
     String filename_legend="${prefix}.scaffolds.legend"
     runtime{ mem: "120GB"
-             cpu: 32
+             cpu: 16
         jobname: "CA_jgi_meta"
     }
 
@@ -102,7 +102,7 @@ task assy {
      String filename_spadeslog ="${outprefix}/spades.log"
      String dollar="$"
      runtime{ mem: "120GB"
-             cpu: 32
+             cpu: 16
         jobname: "ASM_jgi_meta"
      }
 
@@ -137,7 +137,7 @@ task bbcms {
      String filename_counts="counts.metadata.json"
      String dollar="$"
      runtime{ mem: "120GB"
-             cpu: 32
+             cpu: 16
         jobname: "BBCMS_jgi_meta"
      }
 
