@@ -4,9 +4,16 @@
 This workflow take paired-end reads and assembled contigs runs contig binning, bin refine step, abundance report and bins annootation using [metawrap](https://github.com/bxlab/metaWRAP).
 
 ## Running Workflow in Cromwell
-You should run this on cori. There are two ways to run the workflow.
-1. (SlurmCromwellShifter) The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications.
-2. (CronwellSlurmShifter) The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
+You should run this on cori. There are three ways to run the workflow.
+1. `SlurmCromwellJtmShifter/`: The submit script will start a jtm-task-manager. The Cromwell send tasks to jtm-task-managers which will manages the tasks running on a computer node and using Shifter to run applications. 
+2. `SlurmCromwellShifter/`: The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications. 
+3. `CronwellSlurmShifter/`: The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
+
+Description of the files in each sud-directory:
+ - `.wdl` file: the WDL file for workflow definition
+ - `.json` file: the example input for the workflow
+ - `.conf` file: the conf file for running Cromwell.
+ - `.sh` file: the shell script for running the example workflow
 
 ## The Docker image and Dockerfile can be found here
 

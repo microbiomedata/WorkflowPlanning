@@ -123,8 +123,7 @@ task binning{
 		File binning_dir="INITIAL_BINNING"
 		File dummy_finished="INITIAL_BINNING/binning.finished"
 	}
-	runtime{ mem: "20GB"
-                cpu: cpu
+	runtime{ mem: "0G"
 		jobname: "Binning_" + projectName
     }
 
@@ -158,8 +157,7 @@ task refine_bins{
 		String refinebin_pwd = read_string("refine_bins_pwd.txt")
 		File refinebin_dir = "BIN_REFINEMENT"
 	}
-	runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ mem: "0G"
 		jobname: "refineBin_" + projectName
 	}
 }
@@ -193,8 +191,7 @@ task blobology{
 	output {
 		File outfile = 'BLOBOLOGY/final_assembly.binned.blobplot'
 	}
-	runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ mem: "0G"
 		jobname: "blobology_" + projectName
     }
 }
@@ -228,8 +225,7 @@ task abundance{
 	output{
 		File abund_table = "QUANT_BINS/bin_abundance_table.tab"
 	}
-    runtime{ mem: mem + "GB"
-                cpu: cpu
+    runtime{ mem: "0G"
 		jobname: "Abu_" + projectName
     }
 }
@@ -265,8 +261,7 @@ task reassemble{
 		String reassemble_pwd = read_string("reassemble_pwd.txt")
 		File reassemble_dir = "BIN_REASSEMBLY"
 	}
-    runtime{ mem: mem + "GB"
-                cpu: cpu
+    runtime{ mem: "0G"
 		jobname: "reASM_" + projectName
     }
 }
@@ -288,8 +283,7 @@ task bin_taxonomy{
 	output{
 		File taxonomy_tab = "BIN_CLASSIFICATION/bin_taxonomy.tab"
 	}
-	runtime{ mem: mem + "GB"
-             cpu: cpu
+	runtime{ mem: "0G"
 	jobname: "BinTax_" + projectName
 	}
 }
@@ -313,8 +307,7 @@ task bin_annotation{
 		File dummy_finished = "FUNCT_ANNOT/annotation.finished"
 	}
 
-	runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ mem: "0G"
 		jobname: "BinAnno_" + projectName
 	}
 }
@@ -361,8 +354,7 @@ task make_output{
 		fi
 		chmod 764 -R ${outdir}
 	}
-        runtime{ mem: "1GB"
-                 cpu: 1
+        runtime{ mem: "0GB"
 		jobname: "output_"+ projectName
                 }
 }

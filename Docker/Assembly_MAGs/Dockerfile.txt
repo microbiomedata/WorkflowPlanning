@@ -9,7 +9,8 @@ LABEL tags="bioinformatics"
 
 ENV container docker
 
-RUN conda config --add channels defaults && \ 
+RUN apt update && apt install -y gcc && \
+    conda config --add channels defaults && \ 
     conda config --add channels conda-forge && \
     conda config --add channels bioconda && \
     conda config --add channels ursky && \
@@ -18,16 +19,19 @@ RUN conda config --add channels defaults && \
     wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz && \ 
     tar xvzf checkm_data_2015_01_16.tar.gz && \
     rm checkm_data_2015_01_16.tar.gz && \
-    conda install -y -c ursky metawrap-mg FaQCs idba && \
+    conda install -y -c ursky metawrap-mg FaQCs idba minimap2 seqtk && \
     conda remove --force -y -c bioconda checkm-genome blast && \
     pip install --upgrade pip && \
-    pip install checkm-genome && \
+    pip install checkm-genome==1.0.18 && \
     pip install --upgrade --force-reinstall matplotlib && \
     wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.9.0/ncbi-blast-2.9.0+-x64-linux.tar.gz && \
     tar xvzf ncbi-blast-2.9.0+-x64-linux.tar.gz && cp ncbi-blast-2.9.0+/bin/* /opt/conda/bin && \
+    wget https://github.com/ruanjue/wtdbg2/releases/download/v2.5/wtdbg-2.5_x64_linux.tgz && \
+    tar xvzf wtdbg-2.5_x64_linux.tgz && cp wtdbg-2.5_x64_linux/* /opt/conda/bin && \
     apt update && apt install -y procps && \
     apt autoremove -y && apt clean && \
-    conda clean -y -a && rm -rf ncbi-blast-2.9.0* && \
+    conda clean -y -a && rm -rf ncbi-blast-2.9.0* wtdbg-2.5_x64_linux* && \
+    apt-get autoremove -y && apt-get clean && \
     ktUpdateTaxonomy.sh && \
     checkm data setRoot /databases/checkM  2>/dev/null && \
     chmod 777 /opt/conda/lib/python2.7/site-packages/checkm/DATA_CONFIG && \

@@ -83,13 +83,19 @@ task binning{
 	File assembly_file
 	String outdir
 	Int cpu
+	Int pairedNumber = length(PairedReads)
 	command {
 		#mkdir -p ${outdir}
 		if [ -f "${outdir}/INITIAL_BINNING/binning.finished" ]; then exit; fi
 		## require _1.fastq and _2.fastq format
 		if [ -f "${PairedReads[0]}" ]; then
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
+			if [ ${pairedNumber} -eq 2 ]; then
+				ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
 			metawrap binning -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
 		fi
 		if [ -f "${SingleRead}" ]; then
@@ -155,15 +161,19 @@ task blobology{
 	File assembly_file
 	Array[File] PairedReads
 	File? SingleRead
+	Int pairedNumber = length(PairedReads)
 	command {
-		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
-	if [ -f "${PairedReads[0]}" ]; then
-            ln -fs ${PairedReads[0]} read_1.fastq
-            ln -fs ${PairedReads[1]} read_2.fastq
-        fi      
-        if [ -f "${SingleRead}" ]; then
-            ln -fs ${SingleRead} read.fastq
-        fi
+	#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
+		if [ -f "${SingleRead}" ]; then
+			ln -fs ${SingleRead} read.fastq
+		fi
 		path=${refinebin_pwd}
 		metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
 	}
@@ -175,7 +185,7 @@ task blobology{
                 cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
              # require NCBI_NT_DB database
-             # database: '/global/project/projectdirs/m3408/aim2/database'
+             # database: '/global/cfs/projectdirs/m3408/aim2/database'
     }
 }
 
@@ -189,12 +199,16 @@ task abundance{
 	File? SingleRead
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
-		if [ -f "${PairedReads[0]}" ]; then 
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
-        	fi      
-        	if [ -f "${SingleRead}" ]; then
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else    
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
+		if [ -f "${SingleRead}" ]; then
 			ln ${SingleRead} read.fastq
 		fi
 		path=${refinebin_pwd}
@@ -203,10 +217,10 @@ task abundance{
 	output{
 		File abund_table = "QUANT_BINS/bin_abundance_table.tab"
 	}
-    runtime{ memory: mem + "GB"
+	runtime{ memory: mem + "GB"
                 cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
-    }
+	}
 }
 
 task reassemble{
@@ -217,11 +231,19 @@ task reassemble{
 	File refinebin_pwd
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
 		path=${refinebin_pwd}
-		metawrap reassemble_bins -o BIN_REASSEMBLY -1 ${PairedReads[0]} -2 ${PairedReads[1]} -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
+		metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
 	}
 
@@ -234,7 +256,7 @@ task reassemble{
     runtime{ memory: mem + "GB"
                 cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
-           #database: '/global/project/projectdirs/m3408/aim2/database'
+           #database: '/global/cfs/projectdirs/m3408/aim2/database'
     }
 }
 
@@ -258,7 +280,7 @@ task bin_taxonomy{
              cpu: cpu
              docker: 'bioedge/nmdc_mags:withchkmdb'
               # NT database
-             # database: '/global/project/projectdirs/m3408/aim2/database'
+             # database: '/global/cfs/projectdirs/m3408/aim2/database'
 	}
 }
 
