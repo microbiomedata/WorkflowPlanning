@@ -3,8 +3,8 @@
 
   Under AIM2, we are developing Meta-proteomics workflow (task 2.1.5: A2170, A2180 &, A2200). Code base is being developed in Python and will be wrapped in a container with all the necessary dependencies needed to run the workflow. Currently, The source data is be obtained from analysis tools such as
 
-- [MS-GF+]((https://github.com/MSGFPlus/msgfplus)) (1) which performs peptide identification by scoring MS/MS spectra against peptides derived from a protein sequence database (FASTA files). 
-- [MASIC]((https://github.com/PNNL-Comp-Mass-Spec/MASIC)) (2) which extracts intensity information for the identified peptides. 
+- [MS-GF+](https://github.com/MSGFPlus/msgfplus) (1) which performs peptide identification by scoring MS/MS spectra against peptides derived from a protein sequence database (FASTA files). 
+- [MASIC](https://github.com/PNNL-Comp-Mass-Spec/MASIC) (2) which extracts intensity information for the identified peptides. 
 
 Currently, this workflow assumes that the output analysis files from MS-GF+(TSV file) and MASIC(SICstats file) tools are available to start the workflow, but moving forward, running MS-GF+ and MASIC as a separate containers would also be provided to the user along with the workflow. The current workflow merges the outputs from MSGF+ and MASIC, and applies filtering to control the false discovery rate. The output is a crosstab format table with rows containing protein sequence information, and columns with relative abundance measurements for proteins identified in each sample analyzed.
 
