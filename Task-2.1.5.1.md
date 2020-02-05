@@ -36,13 +36,13 @@ In detail progress about the Meta-proteomics workflow could be find here:
 
 ### Third party software used/other dependencies:
 
-     (1)    MS-GF+: Universal Database Search Tool for Mass Spectrometry.
+     (1)    [MS-GF+: Universal Database Search Tool for Mass Spectrometry.](https://github.com/MSGFPlus/msgfplus)
                    Sangtae Kim, Pavel A. Pevzner, Nat Commun. 2014 Oct 31;5:5277. doi: 10.1038/ncomms6277.   
                    
                    This software is Copyright © 2012, 2013 The Regents of the University of California. All Rights Reserved.
                    Permission to copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice, this paragraph and the following three paragraphs appear in all copies.
  
-    (2)    MASIC+: (MS/MS Automated Selected Ion Chromatogram generator) a software program for fast quantitation and flexible visualization of chromatographic profiles from detected LC-MS(/MS) features.             
+    (2)    [MASIC+: (MS/MS Automated Selected Ion Chromatogram generator) a software program for fast quantitation and flexible visualization of chromatographic profiles from detected LC-MS(/MS) features. ](https://github.com/PNNL-Comp-Mass-Spec/MASIC)            
                    Matthew E. Monroe and Shaw, Jason L and Daly, Don S and Adkins, Joshua N and Smith, Richard D   ### Database: DMS- Data management system(temporary purpose.!)
  
                    Licensed under the 2-Clause BSD License; you may not use this file except in compliance with the License. You may obtain a copy of the License at https://opensource.org/licenses/BSD-2-Clause
