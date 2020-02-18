@@ -37,7 +37,7 @@ task read_mapping_pairs{
     runtime {
 	poolname: "aim2_assembly"
         cluster: "cori"
-        time: "24:00:00"
+        time: "06:00:00"
         cpu: 32
         mem: "115GB"
         node: 1
@@ -78,7 +78,7 @@ task create_agp {
     runtime {
         poolname: "aim2_assembly"
         cluster: "cori"
-        time: "24:00:00"
+        time: "01:00:00"
         cpu: 32
         mem: "115GB"
         node: 1
@@ -115,7 +115,7 @@ task assy {
      runtime {
         poolname: "aim2_assembly"
         cluster: "cori"
-        time: "24:00:00"
+        time: "10:00:00"
         cpu: 32
         mem: "115GB"
         node: 1
@@ -155,7 +155,7 @@ task bbcms {
      runtime {
         poolname: "aim2_assembly"
         cluster: "cori"
-        time: "24:00:00"
+        time: "06:00:00"
         cpu: 32
         mem: "115GB"
         node: 1

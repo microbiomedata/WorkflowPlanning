@@ -123,9 +123,16 @@ task binning{
 		File binning_dir="INITIAL_BINNING"
 		File dummy_finished="INITIAL_BINNING/binning.finished"
 	}
-	runtime{ mem: "0G"
-		jobname: "Binning_" + projectName
-    }
+	runtime{ 
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+		#jobname: "Binning_" + projectName
+	}
 
 }
 
@@ -157,8 +164,15 @@ task refine_bins{
 		String refinebin_pwd = read_string("refine_bins_pwd.txt")
 		File refinebin_dir = "BIN_REFINEMENT"
 	}
-	runtime{ mem: "0G"
-		jobname: "refineBin_" + projectName
+	runtime{ 
+		#jobname: "refineBin_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -191,9 +205,16 @@ task blobology{
 	output {
 		File outfile = 'BLOBOLOGY/final_assembly.binned.blobplot'
 	}
-	runtime{ mem: "0G"
-		jobname: "blobology_" + projectName
-    }
+	runtime{ 
+		#jobname: "blobology_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task abundance{
@@ -225,9 +246,16 @@ task abundance{
 	output{
 		File abund_table = "QUANT_BINS/bin_abundance_table.tab"
 	}
-    runtime{ mem: "0G"
+	runtime{ 
 		jobname: "Abu_" + projectName
-    }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task reassemble{
@@ -261,9 +289,16 @@ task reassemble{
 		String reassemble_pwd = read_string("reassemble_pwd.txt")
 		File reassemble_dir = "BIN_REASSEMBLY"
 	}
-    runtime{ mem: "0G"
+	runtime{ 
 		jobname: "reASM_" + projectName
-    }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task bin_taxonomy{
@@ -283,8 +318,15 @@ task bin_taxonomy{
 	output{
 		File taxonomy_tab = "BIN_CLASSIFICATION/bin_taxonomy.tab"
 	}
-	runtime{ mem: "0G"
-	jobname: "BinTax_" + projectName
+	runtime{ 
+		#jobname: "BinTax_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -307,8 +349,15 @@ task bin_annotation{
 		File dummy_finished = "FUNCT_ANNOT/annotation.finished"
 	}
 
-	runtime{ mem: "0G"
+	runtime{ 
 		jobname: "BinAnno_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -354,7 +403,14 @@ task make_output{
 		fi
 		chmod 764 -R ${outdir}
 	}
-        runtime{ mem: "0GB"
+        runtime{ 
 		jobname: "output_"+ projectName
-                }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "00:30:00"
+		cpu: CPU
+		mem: "5GB"
+		node: 1
+		nwpn: 4
+	}
 }
