@@ -7,7 +7,7 @@ This workflow take paired-end reads and assembled contigs runs contig binning, b
 You should run this on cori. There are three ways to run the workflow.
 1. `CromwellJtmShifter/`: run in head node send tasks to jtm-task-managers which will manages the tasks running on a computer node and using Shifter to run applications.
 2. `SlurmCromwellShifter/`: The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications. 
-3. `CronwellSlurmShifter/`: The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
+3. `CromwellSlurmShifter/`: The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
 
 Description of the files in each sud-directory:
  - `.wdl` file: the WDL file for workflow definition
