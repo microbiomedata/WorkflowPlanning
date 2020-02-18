@@ -33,13 +33,16 @@ task read_mapping_pairs{
     String filename_bamscript="to_bam.sh"
     String filename_cov="covstats.txt"
     String dollar="$"
-    runtime { backend: "JTM"}
-    # runtime {
-    #        docker: container
-    #        backend: "r5-120g-16c-spot-ceq"
-    #        memory: "120 GiB"
-    #	    cpu:  16
-    # }
+    #runtime { backend: "JTM"}
+    runtime {
+	poolname: "aim2_assembly"
+        cluster: "cori"
+        time: "24:00:00"
+        cpu: 32
+        mem: "115GB"
+        node: 1
+        nwpn: 4
+    }
     command{
     	echo $(curl --fail --max-time 10 --silent http://169.254.169.254/latest/meta-data/public-hostname)
         touch ${filename_resources};
@@ -71,13 +74,16 @@ task create_agp {
     String filename_scaffolds="${prefix}.scaffolds.fasta"
     String filename_agp="${prefix}.agp"
     String filename_legend="${prefix}.scaffolds.legend"
-    runtime {backend: "JTM"}
-    # runtime {
-    #        docker: container
-    #        backend: "r5-120g-16c-spot-ceq"
-    #        memory: "120 GiB"
-    #	    cpu:  16
-    # }
+    #runtime {backend: "JTM"}
+    runtime {
+        poolname: "aim2_assembly"
+        cluster: "cori"
+        time: "24:00:00"
+        cpu: 32
+        mem: "115GB"
+        node: 1
+        nwpn: 4
+    }
     command{
 	echo $(curl --fail --max-time 10 --silent http://169.254.169.254/latest/meta-data/public-hostname)
         touch ${filename_resources};
@@ -105,13 +111,16 @@ task assy {
      String filename_outfile="${outprefix}/scaffolds.fasta"
      String filename_spadeslog ="${outprefix}/spades.log"
      String dollar="$"
-     runtime {backend: "JTM"}
-     #runtime {
-     #       docker: container
-     #       backend: "r5-500g-64c-spot-ceq"
-     #       memory: "480 GiB"
-     #	    cpu:  64
-     #}
+     #runtime {backend: "JTM"}
+     runtime {
+        poolname: "aim2_assembly"
+        cluster: "cori"
+        time: "24:00:00"
+        cpu: 32
+        mem: "115GB"
+        node: 1
+        nwpn: 4
+     }
      command{
 	echo $(curl --fail --max-time 10 --silent http://169.254.169.254/latest/meta-data/public-hostname)
         touch ${filename_resources};
@@ -142,13 +151,16 @@ task bbcms {
      String filename_kmerfile="unique31mer.txt"
      String filename_counts="counts.metadata.json"
      String dollar="$"
-     runtime { backend: "JTM"}
-     #runtime {
-     #       docker: container
-     #       backend: "r5-120g-16c-spot-ceq"
-     #       memory: "120 GiB"
-     #	    cpu:  16
-     #}
+     #runtime { backend: "JTM"}
+     runtime {
+        poolname: "aim2_assembly"
+        cluster: "cori"
+        time: "24:00:00"
+        cpu: 32
+        mem: "115GB"
+        node: 1
+        nwpn: 4
+     }
 
      command {
         echo $(curl --fail --max-time 10 --silent http://169.254.169.254/latest/meta-data/public-hostname)
