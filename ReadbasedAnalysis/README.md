@@ -5,17 +5,15 @@ This workflow is developed for Task-2.1.2. The pipeline takes sequencing files (
 ## Run jobs using cromwell
 
 There is two workflow directories that contain different configurations for Cromwell:
- - `SlurmCromwellJtmShifter/`: uses local backend.
- - `SlurmCromwellShifter/`: uses JTM backend.
+ - `CromwellJtmShifter/`: uses JTM backend.
+ - `SlurmCromwellShifter/`: uses local backend.
 
 Description of the files:
  - `ReadbasedAnalysis.wdl`: the WDL file for read-based analysis pipeline.
  - `ReadbasedAnalysisTasks.wdl`: the WDL file for tasks of each tool.
  - `ReadbasedAnalysis_inputs.json`: the example inputs.json file for the pipeline.
- - `ReadbasedAnalysis_sbatch*.sh`: the shell script for the Slurm's sbatch.
  - `ReadbasedAnalysis_cromwell*.conf`: the conf file for running cromwell.
-
-Use `ReadbasedAnalysis_sbatch.sh` or `ReadbasedAnalysis_sbatch_jtm.sh` to launch a Cromwell job with local or JTM-backend. The Cromwell manages the workflow and uses Shifter to run enabled tools.
+ - `ReadbasedAnalysis.[sh|job]`: the script for running with jobs using JTM or sbatch to slurm.
 
 ## Docker image
 

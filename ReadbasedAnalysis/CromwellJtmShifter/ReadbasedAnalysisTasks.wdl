@@ -29,8 +29,13 @@ task profilerGottcha2 {
         File krona_html = "${OUTPATH}/${PREFIX}.krona.html"
     }
     runtime {
-        memory: "30GB"
+        poolname: "aim2_readbased_analysis"
+        cluster: "cori"
+        time: "01:00:00"
         cpu: CPU
+        mem: "30GB"
+        node: 1
+        nwpn: 4
     }
     meta {
         author: "Po-E Li, B10, LANL"
@@ -63,8 +68,13 @@ task profilerCentrifuge {
         File krona_html = "${OUTPATH}/${PREFIX}.krona.html"
     }
     runtime {
-        memory: "30GB"
+        poolname: "aim2_readbased_analysis"
+        cluster: "cori"
+        time: "01:00:00"
         cpu: CPU
+        mem: "30GB"
+        node: 1
+        nwpn: 4
     }
     meta {
         author: "Po-E Li, B10, LANL"
@@ -98,8 +108,13 @@ task profilerKraken2 {
         File krona_html = "${OUTPATH}/${PREFIX}.krona.html"
     }
     runtime {
-        memory: "30GB"
+        poolname: "aim2_readbased_analysis"
+        cluster: "cori"
+        time: "01:00:00"
         cpu: CPU
+        mem: "30GB"
+        node: 1
+        nwpn: 4
     }
     meta {
         author: "Po-E Li, B10, LANL"
