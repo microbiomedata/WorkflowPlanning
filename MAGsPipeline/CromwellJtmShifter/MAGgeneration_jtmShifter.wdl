@@ -93,13 +93,19 @@ task binning{
 	String outdir
 	Int cpu
 	String projectName
+	Int pairedNumber = length(PairedReads)
 	command {
 		#mkdir -p ${outdir}
 		if [ -f "${outdir}/INITIAL_BINNING/binning.finished" ]; then exit; fi
 		## require _1.fastq and _2.fastq format
 		if [ -f "${PairedReads[0]}" ]; then
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
+			if [ ${pairedNumber} -eq 2 ]; then
+				ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+			else
+				# presume interleaved format
+				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+			fi
 			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap binning -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
 		fi
 		if [ -f "${SingleRead}" ]; then
@@ -117,10 +123,16 @@ task binning{
 		File binning_dir="INITIAL_BINNING"
 		File dummy_finished="INITIAL_BINNING/binning.finished"
 	}
-	runtime{ mem: "20GB"
-                cpu: cpu
-		jobname: "Binning_" + projectName
-    }
+	runtime{ 
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+		#jobname: "Binning_" + projectName
+	}
 
 }
 
@@ -152,9 +164,15 @@ task refine_bins{
 		String refinebin_pwd = read_string("refine_bins_pwd.txt")
 		File refinebin_dir = "BIN_REFINEMENT"
 	}
-	runtime{ mem: mem + "GB"
-                cpu: cpu
-		jobname: "refineBin_" + projectName
+	runtime{ 
+		#jobname: "refineBin_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -167,26 +185,36 @@ task blobology{
 	Array[File] PairedReads
 	File? SingleRead
 	String projectName
+	Int pairedNumber = length(PairedReads)
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
-	if [ -f "${PairedReads[0]}" ]; then
-            ln -fs ${PairedReads[0]} read_1.fastq
-            ln -fs ${PairedReads[1]} read_2.fastq
-        fi      
-        if [ -f "${SingleRead}" ]; then
-            ln -fs ${SingleRead} read.fastq
-        fi
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
+		if [ -f "${SingleRead}" ]; then
+			ln -fs ${SingleRead} read.fastq
+ 		fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
+		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
 	}
 	
 	output {
 		File outfile = 'BLOBOLOGY/final_assembly.binned.blobplot'
 	}
-	runtime{ mem: mem + "GB"
-                cpu: cpu
-		jobname: "blobology_" + projectName
-    }
+	runtime{ 
+		#jobname: "blobology_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task abundance{
@@ -200,12 +228,16 @@ task abundance{
 	String projectName
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
-		if [ -f "${PairedReads[0]}" ]; then 
-			ln -fs ${PairedReads[0]} read_1.fastq
-			ln -fs ${PairedReads[1]} read_2.fastq
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
         	fi      
-        	if [ -f "${SingleRead}" ]; then
+		if [ -f "${SingleRead}" ]; then
 			ln ${SingleRead} read.fastq
 		fi
 		path=${refinebin_pwd}
@@ -214,10 +246,16 @@ task abundance{
 	output{
 		File abund_table = "QUANT_BINS/bin_abundance_table.tab"
 	}
-    runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ 
 		jobname: "Abu_" + projectName
-    }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task reassemble{
@@ -229,11 +267,19 @@ task reassemble{
 	File refinebin_pwd
 	Int minCompletion =  70
 	Int maxContamination = 10
+	Int pairedNumber = length(PairedReads)
 	command{
 		# doesn't support single end reads https://github.com/bxlab/metaWRAP/issues/94
 		export TMPDIR=/tmp
+		if [ ${pairedNumber} -eq 2 ]; then
+			ln -fs ${sep=" read_1.fastq; ln -fs " PairedReads} read_2.fastq
+		else
+			# presume interleaved format
+			seqtk seq -1 ${PairedReads[0]} > read_1.fastq
+			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
+		fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 ${PairedReads[0]} -2 ${PairedReads[1]} -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
+		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
 	}
 
@@ -243,10 +289,16 @@ task reassemble{
 		String reassemble_pwd = read_string("reassemble_pwd.txt")
 		File reassemble_dir = "BIN_REASSEMBLY"
 	}
-    runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ 
 		jobname: "reASM_" + projectName
-    }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
+	}
 }
 
 task bin_taxonomy{
@@ -258,17 +310,23 @@ task bin_taxonomy{
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
 		else
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/project/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
 		fi
 	}
 	output{
 		File taxonomy_tab = "BIN_CLASSIFICATION/bin_taxonomy.tab"
 	}
-	runtime{ mem: mem + "GB"
-             cpu: cpu
-	jobname: "BinTax_" + projectName
+	runtime{ 
+		#jobname: "BinTax_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -291,9 +349,15 @@ task bin_annotation{
 		File dummy_finished = "FUNCT_ANNOT/annotation.finished"
 	}
 
-	runtime{ mem: mem + "GB"
-                cpu: cpu
+	runtime{ 
 		jobname: "BinAnno_" + projectName
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "03:00:00"
+		cpu: CPU
+		mem: "30GB"
+		node: 1
+		nwpn: 4
 	}
 }
 
@@ -339,8 +403,14 @@ task make_output{
 		fi
 		chmod 764 -R ${outdir}
 	}
-        runtime{ mem: "1GB"
-                 cpu: 1
+        runtime{ 
 		jobname: "output_"+ projectName
-                }
+		poolname: "aim2_mags"
+		cluster: "cori"
+		time: "00:30:00"
+		cpu: CPU
+		mem: "5GB"
+		node: 1
+		nwpn: 4
+	}
 }

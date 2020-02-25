@@ -6,20 +6,16 @@ The shotgun metagenome assembly and annotation workflow will be evaluated for cu
 #### Environment:
  - CentOS 7
  - Python >= v3.6 
- - Perl >= v5.16
- - Cromwell v44 (BSD 3-Clause)
+ - Java >= 1.8
+ - Cromwell v45 (BSD 3-Clause)
  
 #### Third party software used/other dependencies:
  - conda v4.7.10 (BSD 3-Clause)
- - metaWRAP v1.2 (MIT)
- - MEGAHIT v1.2.8 (GPLv3)
- - MetaSPades v3.13.1 (GPLv2)
- - IDBA-UD v1.1.3 (GPLv2)
- - metaQuast v2.2 (GPLv2)
- - Prokka v1.14.0 (GPLv2)
+ - MetaSPades v3.13.0 (GPLv2)
+ - BBTools:38.44 ([License](https://bitbucket.org/berkeleylab/jgi-bbtools/src/master/license.txt))
  
 #### Database:
- - database come with Prokka annotation software
+ - N/A
  
 #### Tests:
  - Mock dataset: SRR7877884
@@ -31,7 +27,7 @@ The shotgun metagenome assembly and annotation workflow will be evaluated for cu
 #### Environment                                                                                                                                                                                                                                                                
  - Linux (with sh/bash)                                                                                                                                                                                                                                                         
  - Python >= 3.6 (via conda)                                                                                                                                                                                                                                                    
- - Perl >= 5.26 (via conda)                                                                                                                                                                                                                                                     
+ - Java >= 1.8 (via conda)                                                                                                                                                                                                                                                     
                                                                                                                                                                                                                                                                                 
 #### Third party software used (+ their licenses)                                                                                                                                                                                                                               
  - Conda (3-clause BSD)                                                                                                                                                                                                                                                         
