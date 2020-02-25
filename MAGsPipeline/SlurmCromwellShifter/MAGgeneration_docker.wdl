@@ -7,6 +7,8 @@ workflow MAGgeneration {
 	File? SingleRead
 	File Contig
 	String outdir
+	Int minCompletion =  70
+	Int maxContamination = 10
 	
 	call binning{
 		input: cpu = cpu,
@@ -19,6 +21,8 @@ workflow MAGgeneration {
 	call refine_bins{
 		input: cpu = cpu,
 		outdir = outdir,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
 		binning_pwd = binning.binning_dir
 	}
 	
@@ -26,6 +30,8 @@ workflow MAGgeneration {
 		call blobology{
 			input: cpu=cpu,
 			outdir = outdir,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			assembly_file = Contig,
 			PairedReads = PairedReads,
 			SingleRead = SingleRead,
@@ -35,15 +41,19 @@ workflow MAGgeneration {
 	call abundance{
 		input: cpu=cpu, 
 		outdir = outdir,
-                assembly_file = Contig,
-                PairedReads = PairedReads,
-                SingleRead = SingleRead,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
+		assembly_file = Contig,
+		PairedReads = PairedReads,
+		SingleRead = SingleRead,
 		refinebin_pwd = refine_bins.refinebin_dir
 	}
 	if (DoReassemble){
 		call reassemble{
 			input: cpu=cpu,
 			outdir = outdir,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			PairedReads = PairedReads,
 			refinebin_pwd = refine_bins.refinebin_dir
 		}
@@ -52,12 +62,16 @@ workflow MAGgeneration {
 		call bin_taxonomy{
 			input: cpu=cpu,
 			outdir = outdir,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			bin_pwd = if (DoReassemble) then reassemble.reassemble_dir else refine_bins.refinebin_dir
 		}
 	}
 	call bin_annotation{
 		input: cpu=cpu,
 		outdir = outdir,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
 		bin_pwd = if (DoReassemble) then reassemble.reassemble_dir else refine_bins.refinebin_dir
 	}
 	call make_output{
@@ -115,7 +129,7 @@ task binning{
 	}
 	runtime{ memory: "20 GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
     }
 
 }
@@ -149,7 +163,7 @@ task refine_bins{
 	}
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
 	}
 }
 
@@ -161,6 +175,9 @@ task blobology{
 	File assembly_file
 	Array[File] PairedReads
 	File? SingleRead
+	Int minCompletion =  70
+	Int maxContamination = 10
+
 	Int pairedNumber = length(PairedReads)
 	command {
 	#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
@@ -175,7 +192,7 @@ task blobology{
 			ln -fs ${SingleRead} read.fastq
 		fi
 		path=${refinebin_pwd}
-		metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
+		metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_${minCompletion}_${maxContamination}_bins read*fastq
 	}
 	
 	output {
@@ -183,7 +200,7 @@ task blobology{
 	}
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
              # require NCBI_NT_DB database
              # database: '/global/cfs/projectdirs/m3408/aim2/database'
     }
@@ -219,7 +236,7 @@ task abundance{
 	}
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
 	}
 }
 
@@ -255,7 +272,7 @@ task reassemble{
 	}
     runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
            #database: '/global/cfs/projectdirs/m3408/aim2/database'
     }
 }
@@ -265,12 +282,14 @@ task bin_taxonomy{
 	Int cpu
 	String outdir
 	File bin_pwd
+	Int minCompletion =  70
+	Int maxContamination = 10
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
 			metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
 		else
-			metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
+			metawrap classify_bins -b $path/metawrap_${minCompletion}_${maxContamination}_bins -o BIN_CLASSIFICATION -t ${cpu}
 		fi
 	}
 	output{
@@ -278,7 +297,7 @@ task bin_taxonomy{
 	}
 	runtime{ memory: mem + "GB"
              cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
               # NT database
              # database: '/global/cfs/projectdirs/m3408/aim2/database'
 	}
@@ -289,12 +308,14 @@ task bin_annotation{
 	Int cpu
 	String outdir
 	File bin_pwd
+	Int minCompletion =  70
+	Int maxContamination = 10
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
 			metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/reassembled_bins
 		else
-			metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/metawrap_bins
+			metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		fi
 		touch FUNCT_ANNOT/annotation.finished
 	}
@@ -304,7 +325,7 @@ task bin_annotation{
 
 	runtime{ memory: mem + "GB"
                 cpu: cpu
-             docker: 'bioedge/nmdc_mags:withchkmdb'
+             docker: 'microbiomedata/nmdc_mags:withchkmdb'
 	}
 }
 
