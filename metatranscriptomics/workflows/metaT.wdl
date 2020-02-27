@@ -2,6 +2,7 @@ import "../tasks/map_hisat2.wdl" as mh
 import "../tasks/build_hisat2.wdl" as bh2
 import "../tasks/qc.wdl" as qc
 import "../tasks/feature_counts.wdl" as fc
+import "../tasks/calc_scores.wdl" as cs
 
 workflow metaT {
    Boolean DoQC
@@ -45,6 +46,11 @@ workflow metaT {
 		bam_file = mapping.map_bam
 	}
 
+	call cs.CalScores{
+		input: cpu = cpu,
+		projectName = projectName,
+		fc_file = featurecount.ct_tbl
+	}
 
 	
 	meta {
