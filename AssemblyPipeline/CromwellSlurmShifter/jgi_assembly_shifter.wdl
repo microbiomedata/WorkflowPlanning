@@ -103,10 +103,10 @@ task create_agp {
     String rename_contig_prefix
     String filename_resources="resources.log"
     String prefix="assembly"
-    String filename_contigs="${prefix}.contigs.fasta"
-    String filename_scaffolds="${prefix}.scaffolds.fasta"
+    String filename_contigs="${prefix}_contigs.fna"
+    String filename_scaffolds="${prefix}_scaffolds.fna"
     String filename_agp="${prefix}.agp"
-    String filename_legend="${prefix}.scaffolds.legend"
+    String filename_legend="${prefix}_scaffolds.legend"
     runtime{ mem: "120GB"
              cpu: 16
         jobname: "CA_jgi_meta"
