@@ -7,7 +7,7 @@ workflow jgi_meta {
     String spades_container="microbiomedata/spades:3.13.0"
     String basic_container="microbiomedata/bbtools:38.44"
     call bbcms {
-          input: infile=input_file, container=bbtools_container
+          input: input_files=input_file, container=bbtools_container
     }
     call assy {
          input: infile1=bbcms.out1, infile2=bbcms.out2, container=spades_container
@@ -173,7 +173,7 @@ task assy {
 }
 
 task bbcms {
-     Array[File] infile
+     Array[File] input_files
      String container
 
      String filename_resources="resources.log"
@@ -201,15 +201,15 @@ task bbcms {
         sleep 30
         export TIME="time result\ncmd:%C\nreal %es\nuser %Us \nsys  %Ss \nmemory:%MKB \ncpu %P"
         set -eo pipefail
-        if [[ ${infile[0]}  == *.gz ]] ; then
-             cat ${sep=" " infile} > infile.fastq.gz
+        if [[ ${input_files[0]}  == *.gz ]] ; then
+             cat ${sep=" " input_files} > infile.fastq.gz
              export bbcms_input="infile.fastq.gz"
         fi
-        if [[ ${infile[0]}  == *.fastq ]] ; then
-             cat ${sep=" " infile} > infile.fastq
+        if [[ ${input_files[0]}  == *.fastq ]] ; then
+             cat ${sep=" " input_files} > infile.fastq
              export bbcms_input="infile.fastq"
         fi
-        bbcms.sh -Xmx115g  metadatafile=${filename_counts} mincount=2 highcountfraction=0.6 in=${infile} out=${filename_outfile} > >(tee -a ${filename_outlog}) 2> >(tee -a ${filename_errlog} >&2) && grep Unique ${filename_errlog} | rev |  cut -f 1 | rev  > ${filename_kmerfile}
+        bbcms.sh -Xmx115g  metadatafile=${filename_counts} mincount=2 highcountfraction=0.6 in=$bbcms_input out=${filename_outfile} > >(tee -a ${filename_outlog}) 2> >(tee -a ${filename_errlog} >&2) && grep Unique ${filename_errlog} | rev |  cut -f 1 | rev  > ${filename_kmerfile}
         reformat.sh -Xmx115g in=${filename_outfile} out1=${filename_outfile1} out2=${filename_outfile2}
         readlength.sh -Xmx115g in=${filename_outfile} out=${filename_readlen}
         rm $bbcms_input
