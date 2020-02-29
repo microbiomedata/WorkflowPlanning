@@ -86,7 +86,7 @@ task read_mapping_pairs{
              export mapping_input="infile.fastq"
         fi
         
-        bbmap.sh -Xmx115g threads=${dollar}(grep "model name" /proc/cpuinfo | wc -l) nodisk=true interleaved=true ambiguous=random in=${reads} ref=${ref} out=${filename_unsorted} covstats=${filename_cov} bamscript=${filename_bamscript}
+        bbmap.sh -Xmx115g threads=${dollar}(grep "model name" /proc/cpuinfo | wc -l) nodisk=true interleaved=true ambiguous=random in=$mapping_input ref=${ref} out=${filename_unsorted} covstats=${filename_cov} bamscript=${filename_bamscript}
         samtools sort -m100M -@ ${dollar}(grep "model name" /proc/cpuinfo | wc -l) ${filename_unsorted} -o ${filename_sorted}
         samtools index ${filename_sorted}
         reformat.sh -Xmx115g in=${filename_unsorted} out=${filename_outsam} overwrite=true
