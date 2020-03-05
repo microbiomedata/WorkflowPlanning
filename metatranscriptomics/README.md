@@ -4,26 +4,45 @@
 This workflow is designed for analyzing metatranscriptomic datasets.
 
 
-## Testing workflow
+## Running workflow
+
+### In local computer/server with conda
+Running workflow in a local computer or server where all the dependencies are installed and in path. cromwell should be installed in the same directory as this file. 
+
+`cd` into the folder and:
 
 ```
-	java -jar cromwell/cromwell-48.jar run workflows/metaT.wdl -i  test_data/test_input.json 
+	$ java -jar cromwell/cromwell-XX.jar run workflows/metaT.wdl -i  test_data/test_input.json 
 
 ```
 
+### In a local computer/server with docker
+Running workflow in a local computer or server using docker. cromwell should be installed in the same directory as this file.
+```
+  java -jar cromwell/cromwell-XX.jar run workflows/docker_metaT.wdl -i  test_data/test_input.json 
+
+```
+
+###  In cori with shifter and JTM
+
+Running workflow in cori with shifter and JTM:
+
+The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications.
+
+```
+
+
+```
 
 ## Running Workflow in Cromwell
 You should run this on cori. There are two ways to run the workflow.  
-1. (SlurmCromwellShifter) The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications. 
+1. (SlurmCromwellShifter)  
 2. (CronwellSlurmShifter) The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
 
-## The Docker image and Dockerfile can be found here
+## Docker image
 
-```
+The docker images for all profilers is at the docker hub: `migun/nmdc_metat:latest`. The `Dockerfile` can be found in `Docker/metatranscriptomics/` directory.
 
-```
-
-You can find more documentation at 
 
 ## Running Requirements
 unknown at this time
@@ -32,9 +51,7 @@ unknown at this time
 expects: fastq, illumina, paired-end
 fasta: reference genomes or contigs
 gff: reference annotation file
-
-## Output files
-
+json: json with input
 
 ```json
 {
@@ -49,5 +66,12 @@ gff: reference annotation file
 
 ```
 
-## Dependency graph
-![metagenome assembly workflow](workflow_assembly.png)
+
+## Output files
+
+
+
+
+## Version 1 of the workflow
+
+![metatranscriptomics workflow](workflow_metatranscriptomics.png)
