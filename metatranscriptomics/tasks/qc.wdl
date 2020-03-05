@@ -12,7 +12,8 @@ task qc{
 	}
 
 	output{
-		Array[File] QCedPaired = [outdir+'/QC.1.trimmed.fastq',outdir+'/QC.2.trimmed.fastq']
+		Array[File] QCedPaired = [outdir+'/QC.1.trimmed.fastq',
+								  outdir+'/QC.2.trimmed.fastq']
 		File QCedSingle = outdir + "/" + "QC.unpaired.trimmed.fastq"
 		File QCstat = outdir + "/QC.stats.txt"
 		File QCstatPDF = outdir + "/QC_qc_report.pdf"

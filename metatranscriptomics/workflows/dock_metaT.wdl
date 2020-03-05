@@ -34,8 +34,8 @@ workflow metaT {
 	call mh.dock_mapping{
 		input: cpu = cpu,
 		PairedReads = if DoQC then dock_qc.QCedPaired else PairedReads,
-		hisat2_ref = dock_BuildHisat2.hisat2_index,
-		ref_genome = ref_genome,
+		hisat2_ref = dock_BuildHisat2.hs,
+		db = dock_BuildHisat2.db,
 		projectName = projectName
 	}
 
