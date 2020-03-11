@@ -19,9 +19,10 @@ task shift_featurecount{
 	String projectName
 	File ref_gff
 	File bam_file
+	String container
 
 	command {
-		shifter --image=migun/nmdc_metat featureCounts -a ${ref_gff} -B -p -P -C -g ID -t CDS -T ${cpu} -o ${projectName}.count ${bam_file} 
+		shifter --image=${container} featureCounts -a ${ref_gff} -B -p -P -C -g ID -t CDS -T ${cpu} -o ${projectName}.count ${bam_file} 
 	}
 
 	output{
