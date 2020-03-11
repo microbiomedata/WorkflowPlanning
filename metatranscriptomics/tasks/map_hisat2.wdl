@@ -2,13 +2,11 @@ task mapping{
 	Int cpu
 	Array[File] PairedReads
 	String projectName
-	String hisat2_ref
-	String ref_genome
-	String ref_name = basename(ref_genome, ".fna")
+	Array[File] hisat2_ref
+	File db
 
 	command {
-		tar --no-same-owner -xvf "${hisat2_ref}"
-		hisat2 -p ${cpu} -x ${ref_name}/${ref_name} -1 ${PairedReads[0]} -2 ${PairedReads[1]} | samtools view -Sbo ${projectName}.bam
+		hisat2 -p ${cpu} -x ${db} -1 ${PairedReads[0]} -2 ${PairedReads[1]} | samtools view -Sbo ${projectName}.bam
 	}
 
 	output{
@@ -21,14 +19,14 @@ task shift_mapping{
 	Int cpu
 	Array[File] PairedReads
 	String projectName
-	String hisat2_ref
-	String ref_genome
-	String ref_name = basename(ref_genome, ".fna")
+	Array[File] hisat2_ref
+	File db
+	String container
 
-	command {
-		tar --no-same-owner -xvf "${hisat2_ref}"
-		shifter --image=docker:migun/nmdc_metat hisat2 -p ${cpu} -x ${ref_name}/${ref_name} -1 ${PairedReads[0]} -2 ${PairedReads[1]} | samtools view -Sbo ${projectName}.bam
-	}
+	command <<<
+		shifter --image=${container} -- hisat2 -p ${cpu} -x ${db} -1 ${PairedReads[0]} -2 ${PairedReads[1]} > ${projectName}.sam
+		shifter --image=${container} -- samtools view -Sbo ${projectName}.sam -o ${projectName}.bam
+	>>>
 
 	output{
 		File map_bam = "${projectName}.bam"
