@@ -25,14 +25,14 @@ task shift_CalScores{
 	Int cpu
 	String projectName
 	File fc_file
+	String container
 
 	meta {
 		description: "Calculate RPKMs for CDS"
 	}
 
 	command {
-		mv ${edgeR} script.R
-		Rscript script.R -r ${fc_file} -n CDS -o ${projectName}_sc_tbl.tsv -s ${projectName}
+		shifter --image=${container} edgeR.R -r ${fc_file} -n CDS -o ${projectName}_sc_tbl.tsv -s ${projectName}
 	}
 
 	output {

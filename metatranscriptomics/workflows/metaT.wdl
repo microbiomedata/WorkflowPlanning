@@ -34,8 +34,8 @@ workflow metaT {
 	call mh.mapping{
 		input: cpu = cpu,
 		PairedReads = if DoQC then qc.QCedPaired else PairedReads,
-		hisat2_ref = BuildHisat2.hisat2_index,
-		ref_genome = ref_genome,
+		hisat2_ref = BuildHisat2.hs,
+		db = BuildHisat2.db,
 		projectName = projectName
 	}
 
