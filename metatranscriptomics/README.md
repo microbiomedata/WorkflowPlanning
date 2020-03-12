@@ -31,13 +31,9 @@ The submit script will request a node and launch the Cromwell.  The Cromwell man
 
 ```
 
+java -Dconfig.file=jtm.conf -jar cromwell-XX.jar run -i test_data/test_input.json workflows/shift_metaT.wdl
 
 ```
-
-## Running Workflow in Cromwell
-You should run this on cori. There are two ways to run the workflow.  
-1. (SlurmCromwellShifter)  
-2. (CronwellSlurmShifter) The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
 
 ## Docker image
 
