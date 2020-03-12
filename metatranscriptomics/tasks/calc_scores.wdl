@@ -35,6 +35,16 @@ task shift_CalScores{
 		shifter --image=${container} edgeR.R -r ${fc_file} -n CDS -o ${projectName}_sc_tbl.tsv -s ${projectName}
 	}
 
+	runtime {
+		poolname: "aim2_metaT"
+		cluster: "cori"
+		time: "01:00:00"
+		cpu: cpu
+		mem: "10GB"
+		node: 1
+		nwpn: 1
+	}
+
 	output {
 	File sc_tbl = "${projectName}_sc_tbl.tsv"
 	}

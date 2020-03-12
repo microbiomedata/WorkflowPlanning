@@ -45,7 +45,13 @@ The docker images for all profilers is at the docker hub: `migun/nmdc_metat:late
 
 
 ## Running Requirements
-unknown at this time
+
+### in local server
+
+
+### in cori
+shifter
+
 
 ## Input files
 expects: fastq, illumina, paired-end

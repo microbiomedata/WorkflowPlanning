@@ -50,6 +50,16 @@ task shift_BuildHisat2{
 					  	ref_name + ".8.ht2"]
 		File db = ref_name
 	}
+
+	runtime {
+		poolname: "aim2_metaT"
+		cluster: "cori"
+		time: "01:00:00"
+		cpu: cpu
+		mem: "115GB"
+		node: 1
+		nwpn: 2
+	}
 }
 
 task dock_BuildHisat2{

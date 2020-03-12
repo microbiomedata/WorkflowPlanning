@@ -22,7 +22,17 @@ task shift_featurecount{
 	String container
 
 	command {
-		shifter --image=${container} featureCounts -a ${ref_gff} -B -p -P -C -g ID -t CDS -T ${cpu} -o ${projectName}.count ${bam_file} 
+		shifter --image=${container} featureCounts -a ${ref_gff} -B -p -P -C -g ID -t gene -T ${cpu} -o ${projectName}.count ${bam_file} 
+	}
+
+	runtime {
+	poolname: "aim2_metaT"
+		cluster: "cori"
+		time: "01:00:00"
+		cpu: cpu
+		mem: "115GB"
+		node: 1
+		nwpn: 4
 	}
 
 	output{
