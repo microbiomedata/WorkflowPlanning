@@ -21,7 +21,6 @@ task CalScores{
 
 
 task shift_CalScores{
-	File edgeR="scripts/edgeR.R"
 	Int cpu
 	String projectName
 	File fc_file
