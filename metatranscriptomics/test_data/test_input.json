@@ -1,0 +1,10 @@
+{
+    "metaT.projectName":"SRR2126941",
+    "metaT.cpu" : 1,
+    "metaT.outdir": "test_results",
+    "metaT.DoQC" : true,
+    "metaT.QCopts" :"-min_L 50 -n 4",
+    "metaT.PairedReads":["test_data/BTT_test27_R1.fastq.gz","test_data/BTT_test27_R2.fastq.gz"],
+    "metaT.ref_genome": "test_data/test_prok.fna",
+    "metaT.ref_gff": "test_data/test_prok.gff"
+  }
