@@ -1,0 +1,7 @@
+{
+  "annotation.num_splits": 2,
+  "annotation.imgap_input_dir": "/global/cfs/projectdirs/m3408/aim2/canon/1393/splits",
+  "annotation.imgap_input_fasta": "1393_65597.fasta",
+  "annotation.imgap_project_id": "1393_65597",
+  "annotation.imgap_project_type": "metagenome",
+}
