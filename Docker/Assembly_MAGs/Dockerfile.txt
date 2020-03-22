@@ -9,7 +9,7 @@ LABEL tags="bioinformatics"
 
 ENV container docker
 
-RUN apt update && apt install -y gcc && \
+RUN apt update && apt install -y gcc libidn11 procps gzip && \
     conda config --add channels defaults && \ 
     conda config --add channels conda-forge && \
     conda config --add channels bioconda && \
@@ -28,7 +28,8 @@ RUN apt update && apt install -y gcc && \
     tar xvzf ncbi-blast-2.9.0+-x64-linux.tar.gz && cp ncbi-blast-2.9.0+/bin/* /opt/conda/bin && \
     wget https://github.com/ruanjue/wtdbg2/releases/download/v2.5/wtdbg-2.5_x64_linux.tgz && \
     tar xvzf wtdbg-2.5_x64_linux.tgz && cp wtdbg-2.5_x64_linux/* /opt/conda/bin && \
-    apt update && apt install -y procps && \
+    wget ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz && \
+    gunzip linux64.tbl2asn.gz && chomd 755 linux64.tbl2asn && mv linux64.tbl2asn /opt/conda/bin/ && \
     apt autoremove -y && apt clean && \
     conda clean -y -a && rm -rf ncbi-blast-2.9.0* wtdbg-2.5_x64_linux* && \
     apt-get autoremove -y && apt-get clean && \

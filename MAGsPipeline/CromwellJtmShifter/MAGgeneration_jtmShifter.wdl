@@ -8,20 +8,22 @@ workflow MAGgeneration {
 	File Contig
 	String outdir
 	String? projectName = "MAGs"
+	Int minCompletion =  70
+	Int maxContamination = 10
 	
 	call binning{
 		input: cpu = cpu,
 		outdir = outdir,
 		PairedReads = PairedReads,
 		SingleRead = SingleRead,
-		projectName = projectName,
 		assembly_file = Contig
 	}
 
 	call refine_bins{
 		input: cpu = cpu,
 		outdir = outdir,
-		projectName = projectName,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
 		binning_pwd = binning.binning_dir
 	}
 	
@@ -29,28 +31,31 @@ workflow MAGgeneration {
 		call blobology{
 			input: cpu=cpu,
 			outdir = outdir,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			assembly_file = Contig,
 			PairedReads = PairedReads,
 			SingleRead = SingleRead,
-			projectName = projectName,
 			refinebin_pwd = refine_bins.refinebin_dir
 		}
 	}
 	call abundance{
 		input: cpu=cpu, 
 		outdir = outdir,
-                assembly_file = Contig,
-                PairedReads = PairedReads,
-                SingleRead = SingleRead,
-		projectName = projectName,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
+		assembly_file = Contig,
+		PairedReads = PairedReads,
+		SingleRead = SingleRead,
 		refinebin_pwd = refine_bins.refinebin_dir
 	}
 	if (DoReassemble){
 		call reassemble{
 			input: cpu=cpu,
 			outdir = outdir,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			PairedReads = PairedReads,
-			projectName = projectName,
 			refinebin_pwd = refine_bins.refinebin_dir
 		}
 	}
@@ -58,14 +63,16 @@ workflow MAGgeneration {
 		call bin_taxonomy{
 			input: cpu=cpu,
 			outdir = outdir,
-			projectName = projectName,
+			maxContamination = maxContamination,
+			minCompletion = minCompletion,
 			bin_pwd = if (DoReassemble) then reassemble.reassemble_dir else refine_bins.refinebin_dir
 		}
 	}
 	call bin_annotation{
 		input: cpu=cpu,
 		outdir = outdir,
-		projectName = projectName,
+		maxContamination = maxContamination,
+ 		minCompletion = minCompletion,
 		bin_pwd = if (DoReassemble) then reassemble.reassemble_dir else refine_bins.refinebin_dir
 	}
 	call make_output{
@@ -106,11 +113,11 @@ task binning{
 				seqtk seq -1 ${PairedReads[0]} > read_1.fastq
 				seqtk seq -2 ${PairedReads[0]} > read_2.fastq
 			fi
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap binning -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap binning -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
 		fi
 		if [ -f "${SingleRead}" ]; then
 			ln -fs ${SingleRead} read.fastq
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap binning --single-end -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap binning --single-end -o INITIAL_BINNING -t ${cpu} -a ${assembly_file} --metabat2 --maxbin2 --concoct read*fastq
 		fi
 		if [ ! -f "${PairedReads[0]}" -a ! -f "${SingleRead}" ]; then
 			echo "No input files for QC"
@@ -152,7 +159,7 @@ task refine_bins{
 		export TMPDIR=/tmp
 		if [ -f "${outdir}/BIN_REFINEMENT/metawrap_${minCompletion}_${maxContamination}_bins.stats" ]; then exit; fi
 		path=${binning_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap bin_refinement -o BIN_REFINEMENT -t ${cpu} -A $path/metabat2_bins/ -B $path/maxbin2_bins/ -C $path/concoct_bins/ -c ${minCompletion} -x ${maxContamination} -m ${mem}
+		shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap bin_refinement -o BIN_REFINEMENT -t ${cpu} -A $path/metabat2_bins/ -B $path/maxbin2_bins/ -C $path/concoct_bins/ -c ${minCompletion} -x ${maxContamination} -m ${mem}
 		ln -fs metawrap_${minCompletion}_${maxContamination}_bins BIN_REFINEMENT/metawrap_bins
 		pwd > refine_bins_pwd.txt
 	}
@@ -185,6 +192,8 @@ task blobology{
 	Array[File] PairedReads
 	File? SingleRead
 	String projectName
+	Int minCompletion =  70
+	Int maxContamination = 10
 	Int pairedNumber = length(PairedReads)
 	command {
 		#source activate && conda activate /scratch-218819/apps/Anaconda3/envs/metawrap
@@ -199,7 +208,7 @@ task blobology{
 			ln -fs ${SingleRead} read.fastq
  		fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_bins read*fastq
+		shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap blobology -a ${assembly_file} -t ${cpu} -o BLOBOLOGY --bins $path/metawrap_${minCompletion}_${maxContamination}_bins read*fastq
 	}
 	
 	output {
@@ -241,7 +250,7 @@ task abundance{
 			ln ${SingleRead} read.fastq
 		fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap quant_bins -t ${cpu} -b $path/metawrap_${minCompletion}_${maxContamination}_bins -o QUANT_BINS -a ${assembly_file} read*fastq
+		shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap quant_bins -t ${cpu} -b $path/metawrap_${minCompletion}_${maxContamination}_bins -o QUANT_BINS -a ${assembly_file} read*fastq
 	}
 	output{
 		File abund_table = "QUANT_BINS/bin_abundance_table.tab"
@@ -279,7 +288,7 @@ task reassemble{
 			seqtk seq -2 ${PairedReads[0]} > read_2.fastq
 		fi
 		path=${refinebin_pwd}
-		shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
+		shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases	metawrap reassemble_bins -o BIN_REASSEMBLY -1 read_1.fastq -2 read_2.fastq -t ${cpu} -m ${mem} -c ${minCompletion} -x ${maxContamination} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		pwd > reassemble_pwd.txt
 	}
 
@@ -307,12 +316,14 @@ task bin_taxonomy{
 	String outdir
 	String projectName
 	File bin_pwd
+	Int minCompletion =  70
+	Int maxContamination = 10
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/reassembled_bins -o BIN_CLASSIFICATION -t ${cpu}
 		else
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_bins -o BIN_CLASSIFICATION -t ${cpu}
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb --volumn=/global/cfs/projectdirs/m3408/aim2/database:/databases metawrap classify_bins -b $path/metawrap_${minCompletion}_${maxContamination}_bins -o BIN_CLASSIFICATION -t ${cpu}
 		fi
 	}
 	output{
@@ -336,12 +347,14 @@ task bin_annotation{
 	String outdir
 	String projectName
 	File bin_pwd
+	Int minCompletion =  70
+	Int maxContamination = 10s
 	command{
 		path=${bin_pwd}
 		if [ -d "$path/reassembled_bins" ]; then
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/reassembled_bins
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/reassembled_bins
 		else
-			shifter --image=docker:bioedge/nmdc_mags:withchkmdb metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/metawrap_bins
+			shifter --image=docker:microbiomedata/nmdc_mags:withchkmdb metawrap annotate_bins -o FUNCT_ANNOT -t ${cpu} -b $path/metawrap_${minCompletion}_${maxContamination}_bins
 		fi
 		touch FUNCT_ANNOT/annotation.finished
 	}
