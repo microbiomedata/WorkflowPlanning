@@ -1,15 +1,19 @@
-import "https://portal.nersc.gov/project/m3408/wdl/trnascan.wdl" as trnascan
-import "https://portal.nersc.gov/project/m3408/wdl/rfam.wdl" as rfam
-import "https://portal.nersc.gov/project/m3408/wdl/crt.wdl" as crt
-import "https://portal.nersc.gov/project/m3408/wdl/prodigal.wdl" as prodigal
-import "https://portal.nersc.gov/project/m3408/wdl/genemark.wdl" as genemark
+#import "https://portal.nersc.gov/project/m3408/wdl/trnascan.wdl" as trnascan
+#import "https://portal.nersc.gov/project/m3408/wdl/rfam.wdl" as rfam
+#import "https://portal.nersc.gov/project/m3408/wdl/crt.wdl" as crt
+#import "https://portal.nersc.gov/project/m3408/wdl/prodigal.wdl" as prodigal
+#import "https://portal.nersc.gov/project/m3408/wdl/genemark.wdl" as genemark
+import "trnascan.wdl" as trnascan
+import "rfam.wdl" as rfam
+import "crt.wdl" as crt
+import "prodigal.wdl" as prodigal
+import "genemark.wdl" as genemark
 
 workflow s_annotate {
 
   File    imgap_input_fasta
   String  imgap_project_id
   String  imgap_project_type
-  String  output_dir
   Int     additional_threads
   Boolean pre_qc_execute
   String  pre_qc_bin
@@ -21,9 +25,9 @@ workflow s_annotate {
   Boolean rfam_execute
   String  rfam_cmsearch_bin
   String  rfam_clan_filter_bin
-  File    rfam_cm
-  File    rfam_claninfo_tsv
-  File    rfam_feature_lookup_tsv
+  String    rfam_cm
+  String    rfam_claninfo_tsv
+  String    rfam_feature_lookup_tsv
   Boolean crt_execute
   String  crt_cli_jar
   String  crt_transform_bin
@@ -46,8 +50,7 @@ workflow s_annotate {
         project_type = imgap_project_type,
         input_fasta = imgap_input_fasta,
         project_id = imgap_project_id,
-        rename = pre_qc_rename,
-		output_dir = output_dir
+        rename = pre_qc_rename
     }
   }
   if(trnascan_se_execute) {
@@ -58,8 +61,7 @@ workflow s_annotate {
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id,
         imgap_project_type = imgap_project_type,
-        additional_threads = additional_threads,
-        output_dir = output_dir
+        additional_threads = additional_threads
     }
   }
   if(rfam_execute) {
@@ -73,8 +75,7 @@ workflow s_annotate {
         cm = rfam_cm,
         claninfo_tsv = rfam_claninfo_tsv,
         feature_lookup_tsv = rfam_feature_lookup_tsv,
-        additional_threads = additional_threads,
-        output_dir = output_dir
+        additional_threads = additional_threads
     }
   }
   if(crt_execute) {
@@ -83,8 +84,7 @@ workflow s_annotate {
         crt_cli_jar = crt_cli_jar,
         crt_transform_bin = crt_transform_bin,
         imgap_input_fasta = imgap_input_fasta,
-        imgap_project_id = imgap_project_id,
-        output_dir = output_dir
+        imgap_project_id = imgap_project_id
     }
   }
   if(prodigal_execute) {
@@ -94,8 +94,7 @@ workflow s_annotate {
         prodigal_unify_bin = unify_bin,
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type,
-        output_dir = output_dir
+        imgap_project_type = imgap_project_type
     }
   }
   if(genemark_execute) {
@@ -107,8 +106,7 @@ workflow s_annotate {
         genemark_unify_bin = unify_bin,
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type,
-        output_dir = output_dir
+        imgap_project_type = imgap_project_type
     }
   }
   call gff_merge {
@@ -122,8 +120,7 @@ workflow s_annotate {
       ncrna_tmrna_gff = rfam.ncrna_tmrna_gff,
       crt_gff = crt.gff, 
       genemark_gff = genemark.gff,
-      prodigal_gff = prodigal.gff,
-      output_dir = output_dir
+      prodigal_gff = prodigal.gff
   }
   if(prodigal_execute || genemark_execute) {
     call fasta_merge {
@@ -135,8 +132,7 @@ workflow s_annotate {
         genemark_genes = genemark.genes,
         genemark_proteins = genemark.proteins,
         prodigal_genes = prodigal.genes,
-        prodigal_proteins = prodigal.proteins,
-        output_dir = output_dir
+        prodigal_proteins = prodigal.proteins
     }
   }
   if(gff_and_fasta_stats_execute) {
@@ -153,12 +149,10 @@ workflow s_annotate {
       input:
         qc_bin = post_qc_bin,
         input_fasta = imgap_input_fasta,
-        project_id = imgap_project_id,
-        output_dir = output_dir
+        project_id = imgap_project_id
     }
   }
   output {
-	#File  gff = "${output_dir}"+"/"+"${imgap_project_id}_structural_annotation.gff"
 	File  gff = gff_merge.final_gff
 	#File  gff = post_qc.out
     File? proteins = fasta_merge.final_proteins 
@@ -175,7 +169,6 @@ task pre_qc {
   Float  n_ratio_cutoff = 0.5
   Int    seqs_per_million_bp_cutoff = 500
   Int    min_seq_length = 150
-  String output_dir
 
   command <<<
     tmp_fasta="${input_fasta}.tmp"
@@ -217,7 +210,6 @@ task pre_qc {
     fasta_sanity_cmd="$fasta_sanity_cmd -l ${min_seq_length}"
     $fasta_sanity_cmd
     rm $tmp_fasta
-    #cp ${project_id}_contigs.fna ${output_dir}
   >>>
 
   runtime {
@@ -248,13 +240,11 @@ task gff_merge {
   File?  crt_gff
   File?  genemark_gff
   File?  prodigal_gff
-  String output_dir
 
   command {
     ${bin} -f ${input_fasta} ${"-a " + misc_and_regulatory_gff + " " + rrna_gff} \
     ${trna_gff} ${ncrna_tmrna_gff} ${crt_gff} \
     ${genemark_gff} ${prodigal_gff} 1> ${project_id}_structural_annotation.gff
-    #cp ./${project_id}_structural_annotation.gff ${output_dir}
   }
 
   runtime {
@@ -284,12 +274,10 @@ task fasta_merge {
   File?  genemark_proteins
   File?  prodigal_genes
   File?  prodigal_proteins
-  String output_dir
 
   command {
     ${bin} ${final_gff} ${genemark_genes} ${prodigal_genes} 1> ${project_id}_genes.fna
     ${bin} ${final_gff} ${genemark_proteins} ${prodigal_proteins} 1> ${project_id}_proteins.faa
-    #cp ./${project_id}_genes.fna ./${project_id}_proteins.faa ${output_dir}
   }
 
   runtime {
@@ -338,11 +326,9 @@ task post_qc {
   String qc_bin
   File   input_fasta
   String project_id
-  String output_dir
 
   command {
     ${qc_bin} ${input_fasta} "${project_id}_structural_annotation.gff"
-    #cp ./${project_id}_structural_annotation.gff ${output_dir}
   }
 
   runtime {

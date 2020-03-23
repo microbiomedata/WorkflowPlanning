@@ -1,11 +1,10 @@
-import "https://portal.nersc.gov/project/m3408/wdl/structural-annotation.wdl" as sa
-import "https://portal.nersc.gov/project/m3408/wdl/functional-annotation.wdl" as fa
+#import "https://portal.nersc.gov/project/m3408/wdl/structural-annotation.wdl" as sa
+#import "https://portal.nersc.gov/project/m3408/wdl/functional-annotation.wdl" as fa
+import "structural-annotation.wdl" as sa
+import "functional-annotation.wdl" as fa
 
 workflow annotation {
-
-  Int     num_splits
-  String  imgap_input_dir
-  File    imgap_input_fasta
+  String  imgap_input_file
   String  imgap_project_id
   String  imgap_project_type
   Int     additional_threads
@@ -21,9 +20,9 @@ workflow annotation {
   Boolean sa_rfam_execute
   String  sa_rfam_cmsearch_bin
   String  sa_rfam_clan_filter_bin
-  File    sa_rfam_cm
-  File    sa_rfam_claninfo_tsv
-  File    sa_rfam_feature_lookup_tsv
+  String  sa_rfam_cm
+  String  sa_rfam_claninfo_tsv
+  String  sa_rfam_feature_lookup_tsv
   Boolean sa_crt_execute
   String  sa_crt_cli_jar
   String  sa_crt_transform_bin
@@ -43,25 +42,25 @@ workflow annotation {
   String  fa_product_names_mapping_dir
   Boolean fa_ko_ec_execute
   String  fa_ko_ec_img_nr_db
-  File    fa_ko_ec_md5_mapping
-  File    fa_ko_ec_taxon_to_phylo_mapping
+  String  fa_ko_ec_md5_mapping
+  String  fa_ko_ec_taxon_to_phylo_mapping
   String  fa_lastal_bin
   String  fa_selector_bin
   Boolean fa_cath_funfam_execute
-  File    fa_cath_funfam_db
+  String  fa_cath_funfam_db
   Boolean fa_pfam_execute
-  File    fa_pfam_db
-  File    fa_pfam_claninfo_tsv
+  String  fa_pfam_db
+  String  fa_pfam_claninfo_tsv
   String  fa_pfam_clan_filter
   Boolean fa_superfam_excute
-  File    fa_superfam_db
+  String  fa_superfam_db
   Boolean fa_cog_execute
-  File    fa_cog_db
+  String  fa_cog_db
   Boolean fa_tigrfam_execute
-  File    fa_tigrfam_db
+  String  fa_tigrfam_db
   String  fa_hit_selector_bin
   Boolean fa_smart_execute
-  File    fa_smart_db
+  String  fa_smart_db
   Int?    fa_par_hmm_inst
   Int?    fa_approx_num_proteins
   String  fa_hmmsearch_bin
@@ -77,8 +76,7 @@ workflow annotation {
 
   call setup {
     input:
-      n_splits = num_splits,
-      dir = imgap_input_dir
+      file = imgap_input_file
   }
 
   scatter(split in setup.splits) {
@@ -89,8 +87,7 @@ workflow annotation {
           imgap_project_id = imgap_project_id,
           additional_threads = additional_threads,
           imgap_project_type = imgap_project_type,
-          output_dir = split,
-          imgap_input_fasta = "${split}"+"/"+"${imgap_input_fasta}",
+          imgap_input_fasta = split,
           pre_qc_execute = sa_pre_qc_execute,
           pre_qc_bin = sa_pre_qc_bin,
           pre_qc_rename = sa_pre_qc_rename,
@@ -127,7 +124,6 @@ workflow annotation {
           imgap_project_id = imgap_project_id,
           imgap_project_type = imgap_project_type,
           additional_threads = additional_threads,
-          output_dir = split,
           input_fasta = s_annotate.proteins,
           ko_ec_execute = fa_ko_ec_execute,
           ko_ec_img_nr_db = fa_ko_ec_img_nr_db,
@@ -194,12 +190,9 @@ task setup {
        while True:
           line = fin.readline()
           if line.startswith('>') or len(line)==0:
-             fin.seek(- len(line), 1)
+             fin.seek(fin.tell()-len(line), 0)
              break
           fout.write(line)
-
-
-
        chunk += 1
 
     CODE
@@ -208,18 +201,5 @@ task setup {
   output {
     Array[File] splits = read_lines(stdout())
   }
-}
-
-
-task merge {
-  Array[File] files
-
-  command {
-      cat ${sep=" " files} > merged.txt
-  }
-  output {
-    File merged = "merged.txt"
-  }
-
 }
 

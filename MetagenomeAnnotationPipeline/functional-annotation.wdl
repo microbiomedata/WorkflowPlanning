@@ -3,33 +3,32 @@ workflow f_annotate {
   String  imgap_project_id
   String  imgap_project_type
   Int     additional_threads
-  String  output_dir
   File    input_fasta
   Boolean ko_ec_execute
   String  ko_ec_img_nr_db
-  File    ko_ec_md5_mapping
-  File    ko_ec_taxon_to_phylo_mapping
+  String    ko_ec_md5_mapping
+  String    ko_ec_taxon_to_phylo_mapping
   String  lastal_bin
   String  selector_bin
   Boolean smart_execute
   Int?    par_hmm_inst
   Int?    approx_num_proteins
-  File    smart_db
+  String    smart_db
   String  hmmsearch_bin
   String  frag_hits_filter_bin
   Boolean cog_execute
-  File    cog_db
+  String    cog_db
   Boolean tigrfam_execute
-  File    tigrfam_db
+  String    tigrfam_db
   String  hit_selector_bin
   Boolean superfam_execute
-  File    superfam_db
+  String    superfam_db
   Boolean pfam_execute
-  File    pfam_db
-  File    pfam_claninfo_tsv
+  String    pfam_db
+  String    pfam_claninfo_tsv
   String  pfam_clan_filter
   Boolean cath_funfam_execute
-  File    cath_funfam_db
+  String    cath_funfam_db
   Boolean signalp_execute
   String  signalp_gram_stain
   String  signalp_bin
@@ -52,8 +51,7 @@ workflow f_annotate {
         md5 = ko_ec_md5_mapping,
         phylo = ko_ec_taxon_to_phylo_mapping,
         lastal = lastal_bin,
-        selector = selector_bin,
-        out_dir = output_dir
+        selector = selector_bin
     }
   }
   if(smart_execute) {
@@ -66,8 +64,7 @@ workflow f_annotate {
         approx_num_proteins = approx_num_proteins,
         smart_db = smart_db,
         hmmsearch = hmmsearch_bin,
-        frag_hits_filter = frag_hits_filter_bin,
-        out_dir = output_dir
+        frag_hits_filter = frag_hits_filter_bin
     }
   }
   if(cog_execute) {
@@ -80,8 +77,7 @@ workflow f_annotate {
         approx_num_proteins = approx_num_proteins,
         cog_db = cog_db,
         hmmsearch = hmmsearch_bin,
-        frag_hits_filter = frag_hits_filter_bin,
-        out_dir = output_dir
+        frag_hits_filter = frag_hits_filter_bin
     }
   }
   if(tigrfam_execute) {
@@ -94,8 +90,7 @@ workflow f_annotate {
         approx_num_proteins = approx_num_proteins,
         tigrfam_db = tigrfam_db,
         hmmsearch = hmmsearch_bin,
-        hit_selector = hit_selector_bin,
-        out_dir = output_dir
+        hit_selector = hit_selector_bin
     }
   }
   if(superfam_execute) {
@@ -108,8 +103,7 @@ workflow f_annotate {
         approx_num_proteins = approx_num_proteins,
         superfam_db = superfam_db,
         hmmsearch = hmmsearch_bin,
-        frag_hits_filter = frag_hits_filter_bin,
-        out_dir = output_dir
+        frag_hits_filter = frag_hits_filter_bin
     }
   }
   if(pfam_execute) {
@@ -123,8 +117,7 @@ workflow f_annotate {
         pfam_db = pfam_db,
         pfam_claninfo_tsv = pfam_claninfo_tsv,
         pfam_clan_filter = pfam_clan_filter,
-        hmmsearch = hmmsearch_bin,
-        out_dir = output_dir
+        hmmsearch = hmmsearch_bin
     }
   }
   if(cath_funfam_execute) {
@@ -137,8 +130,7 @@ workflow f_annotate {
         approx_num_proteins = approx_num_proteins,
         cath_funfam_db = cath_funfam_db,
         hmmsearch = hmmsearch_bin,
-        frag_hits_filter = frag_hits_filter_bin,
-        out_dir = output_dir
+        frag_hits_filter = frag_hits_filter_bin
     }
   }
   if(imgap_project_type == "isolate" && signalp_execute) {
@@ -147,8 +139,7 @@ workflow f_annotate {
         project_id = imgap_project_id,
         input_fasta = input_fasta,
         gram_stain = signalp_gram_stain,
-        signalp = signalp_bin,
-        out_dir = output_dir
+        signalp = signalp_bin
     }
   }
   if(imgap_project_type == "isolate" && tmhmm_execute) {
@@ -158,8 +149,7 @@ workflow f_annotate {
         input_fasta = input_fasta,
         model = tmhmm_model,
         decode = tmhmm_decode,
-        decode_parser = tmhmm_decode_parser,
-        out_dir = output_dir
+        decode_parser = tmhmm_decode_parser
     }
   }
   call product_name {
@@ -176,8 +166,7 @@ workflow f_annotate {
       pfam_gff = pfam.gff,
       cath_funfam_gff = cath_funfam.gff,
       signalp_gff = signalp.gff,
-      tmhmm_gff = tmhmm.gff,
-      out_dir = output_dir
+      tmhmm_gff = tmhmm.gff
   }
 }
 
@@ -188,14 +177,13 @@ task ko_ec {
   Int    threads = 2
   File   input_fasta
   String nr_db
-  File   md5
-  File   phylo
+  String   md5
+  String   phylo
   Int    top_hits = 5
   Int    min_ko_hits = 2
   Float  aln_length_ratio = 0.7
   String lastal
   String selector
-  String out_dir
 
   command {
     ${lastal} -f blasttab+ -P ${threads} ${nr_db} ${input_fasta} 1> ${project_id}_proteins.img_nr.last.blasttab
@@ -204,7 +192,6 @@ task ko_ec {
                 ${project_id}_ko.tsv ${project_id}_ec.tsv \
                 ${project_id}_gene_phylogeny.tsv ${project_id}_ko_ec.gff \
                 < ${project_id}_proteins.img_nr.last.blasttab
-    #cp ${project_id}_*.tsv ${project_id}_ko_ec.gff ${project_id}_proteins.img_nr.last.blasttab ${out_dir}
   }
 
   runtime {
@@ -231,7 +218,7 @@ task smart {
   
   String project_id
   File   input_fasta
-  File   smart_db
+  String   smart_db
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
@@ -240,7 +227,6 @@ task smart {
   Float  max_overlap_ratio = 0.1
   String hmmsearch
   String frag_hits_filter
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -313,7 +299,6 @@ task smart {
     sort -k1,1 -k7,7nr -k6,6n | \
     ${frag_hits_filter} -a ${aln_length_ratio} -o ${max_overlap_ratio} \
                         "$tool_and_version" > ${project_id}_smart.gff
-    #cp ./${project_id}_smart.gff ./${project_id}_proteins.smart.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -329,7 +314,7 @@ task smart {
 
   output {
     File gff = "${project_id}_smart.gff"
-	File domtblout = "${project_id}_proteins.smart.domtblout"
+    File domtblout = "${project_id}_proteins.smart.domtblout"
   }
 }
 
@@ -337,7 +322,7 @@ task cog {
   
   String project_id
   File   input_fasta
-  File   cog_db
+  String   cog_db
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
@@ -346,7 +331,6 @@ task cog {
   Float  max_overlap_ratio = 0.1
   String hmmsearch
   String frag_hits_filter
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -421,7 +405,6 @@ task cog {
     sort -k1,1 -k7,7nr -k6,6n | \
     ${frag_hits_filter} -a ${aln_length_ratio} -o ${max_overlap_ratio} \
                         "$tool_and_version" > ${project_id}_cog.gff
-    #cp ./${project_id}_cog.gff ./${project_id}_proteins.cog.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -445,7 +428,7 @@ task tigrfam {
   
   String project_id
   File   input_fasta
-  File   tigrfam_db
+  String   tigrfam_db
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
@@ -453,7 +436,6 @@ task tigrfam {
   Float  max_overlap_ratio = 0.1
   String hmmsearch
   String hit_selector
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -527,7 +509,6 @@ task tigrfam {
     sort -k1,1 -k6,6nr -k5,5n | \
     ${hit_selector} -a ${aln_length_ratio} -o ${max_overlap_ratio} \
                     "$tool_and_version" > ${project_id}_tigrfam.gff
-    #cp ./${project_id}_tigrfam.gff ./${project_id}_proteins.tigrfam.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -551,7 +532,7 @@ task superfam {
 
   String project_id
   File   input_fasta
-  File   superfam_db
+  String   superfam_db
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
@@ -560,7 +541,6 @@ task superfam {
   Float  max_overlap_ratio = 0.1
   String hmmsearch
   String frag_hits_filter
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -633,7 +613,6 @@ task superfam {
     sort -k1,1 -k7,7nr -k6,6n | \
     ${frag_hits_filter} -a ${aln_length_ratio} -o ${max_overlap_ratio} \
                         "$tool_and_version" > ${project_id}_supfam.gff
-    #cp ./${project_id}_supfam.gff ./${project_id}_proteins.supfam.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -657,14 +636,13 @@ task pfam {
   
   String project_id
   File   input_fasta
-  File   pfam_db
-  File   pfam_claninfo_tsv
+  String   pfam_db
+  String   pfam_claninfo_tsv
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
   String hmmsearch
   String pfam_clan_filter
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -737,7 +715,6 @@ task pfam {
     awk '{print $1,$3,$4,$6,$13,$14,$16,$17,$20,$21}' | \
     sort -k1,1 -k6,6nr -k5,5n | \
     ${pfam_clan_filter} "$tool_and_version" ${pfam_claninfo_tsv} > ${project_id}_pfam.gff
-    #cp ./${project_id}_pfam.gff ./${project_id}_proteins.pfam.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -761,7 +738,7 @@ task cath_funfam {
   
   String project_id
   File   input_fasta
-  File   cath_funfam_db
+  String   cath_funfam_db
   Int    threads = 2
   Int    par_hmm_inst = 1
   Int    approx_num_proteins = 0
@@ -770,7 +747,6 @@ task cath_funfam {
   Float  max_overlap_ratio = 0.1
   String hmmsearch
   String frag_hits_filter
-  String out_dir
 
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
@@ -844,7 +820,6 @@ task cath_funfam {
     sort -k1,1 -k7,7nr -k6,6n | \
     ${frag_hits_filter} -a ${aln_length_ratio} -o ${max_overlap_ratio} \
                         "$tool_and_version" > ${project_id}_cath_funfam.gff
-    #cp ./${project_id}_cath_funfam.gff ./${project_id}_proteins.cath_funfam.domtblout ${out_dir}
   >>>
 
   runtime {
@@ -870,7 +845,6 @@ task signalp {
   File   input_fasta
   String gram_stain
   String signalp
-  String out_dir
 
   command <<<
     signalp_version=$(${signalp} -V)
@@ -879,7 +853,6 @@ task signalp {
     awk -v sv="$signalp_version" -v ot="${gram_stain}" \
         '$10 == "Y" {print $1"\t"sv"\tcleavage_site\t"$3-1"\t"$3"\t"$2\
         "\t.\t.\tD-score="$9";network="$12";organism_type="ot}' > ${project_id}_cleavage_sites.gff
-    #cp ./${project_id}_cleavage_sites.gff ${out_dir}
   >>>
 
   runtime {
@@ -905,7 +878,6 @@ task tmhmm {
   String model
   String decode
   String decode_parser
-  String out_dir
 
   command <<<
     tool_and_version=$(${decode} -v 2>&1 | head -1)
@@ -914,7 +886,6 @@ task tmhmm {
     sed 's/\*/X/g' ${input_fasta} | \
     ${decode} -N 1 -background $background -PrintNumbers \
     ${model} 2> /dev/null | ${decode_parser} "$tool_and_version" > ${project_id}_tmh.gff
-    #cp ./${project_id}_tmh.gff ${out_dir}
   >>>
 
   runtime {
@@ -948,7 +919,6 @@ task product_name {
   File?  cath_funfam_gff
   File?  signalp_gff
   File?  tmhmm_gff
-  String out_dir
 
   command {
     ${product_assign} ${"-k " + ko_ec_gff} ${"-s " + smart_gff} ${"-c " + cog_gff} \
@@ -956,7 +926,6 @@ task product_name {
                       ${"-f " + cath_funfam_gff} ${"-e " + signalp_gff} ${"-r " + tmhmm_gff} \
                       ${map_dir} ${sa_gff}
     mv ../inputs/*/*.gff .
-    #cp ./${project_id}_functional_annotation.gff ${out_dir}
   }
 
   runtime {

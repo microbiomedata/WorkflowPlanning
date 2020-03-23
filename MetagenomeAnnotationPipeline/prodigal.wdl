@@ -3,7 +3,6 @@ workflow prodigal {
   String imgap_input_fasta
   String imgap_project_id
   String imgap_project_type
-  String output_dir
   String prodigal_bin
   String prodigal_unify_bin
 
@@ -51,7 +50,6 @@ workflow prodigal {
       meta_gff = metag.gff,
       unify_bin = prodigal_unify_bin,
       project_id = imgap_project_id,
-      out_dir = output_dir
   }
 
   output {
@@ -191,7 +189,6 @@ task clean_and_unify {
   File?  meta_gff
   String unify_bin
   String project_id
-  String out_dir
 
   command {
     sed -i 's/\*$//g' ${iso_big_proteins_fasta} ${iso_small_proteins_fasta} ${meta_proteins_fasta}
@@ -208,7 +205,6 @@ task clean_and_unify {
     mv ${iso_big_gff} . 2> /dev/null
     mv ${iso_small_gff} . 2> /dev/null
     mv ${meta_gff} . 2> /dev/null
-    #cp -r ./${project_id}_prodigal* ${out_dir}
   }
 
   runtime {

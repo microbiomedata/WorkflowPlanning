@@ -3,7 +3,6 @@ workflow genemark {
   String imgap_input_fasta
   String imgap_project_id
   String imgap_project_type
-  String output_dir
   String genemark_iso_bin
   String genemark_meta_bin
   String genemark_meta_model
@@ -35,8 +34,7 @@ workflow genemark {
       iso_gff = gm_isolate.gff,
       meta_gff = gm_meta.gff,
       unify_bin = genemark_unify_bin,
-      project_id = imgap_project_id,
-      out_dir = output_dir
+      project_id = imgap_project_id
   }
 
   output {
@@ -119,7 +117,6 @@ task clean_and_unify {
   File?  meta_gff
   String unify_bin
   String project_id
-  String out_dir
   
   command {
     sed -i 's/\*/X/g' ${iso_proteins_fasta} ${meta_proteins_fasta}
@@ -132,7 +129,6 @@ task clean_and_unify {
     mv ${meta_genes_fasta} . 2> /dev/null
     mv ${iso_gff} . 2> /dev/null
     mv ${meta_gff} . 2> /dev/null
-    #cp -r ./${project_id}_genemark* ${out_dir}
   }
 
   runtime {
