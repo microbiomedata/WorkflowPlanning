@@ -9,7 +9,7 @@ You should run this on cori. There are three ways to run the workflow.
 2. `SlurmCromwellShifter/`: The submit script will request a node and launch the Cromwell.  The Cromwell manages the workflow by using Shifter to run applications. 
 3. `CromwellSlurmShifter/`: The Cromwell run in head node and manages the workflow by submitting each step of workflow to compute node where applications were ran by Shifter.
 
-Description of the files in each sud-directory:
+Description of the files in each sub-directory:
  - `.wdl` file: the WDL file for workflow definition
  - `.json` file: the example input for the workflow
  - `.conf` file: the conf file for running Cromwell.
