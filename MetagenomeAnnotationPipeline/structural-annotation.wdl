@@ -13,76 +13,41 @@ workflow s_annotate {
 
   File    imgap_input_fasta
   String  imgap_project_id
-  String  imgap_project_type
   Int     additional_threads
-  Boolean pre_qc_execute
-  String  pre_qc_bin
-  String  pre_qc_rename
-  String  post_qc_bin
-  Boolean trnascan_se_execute
-  String  trnascan_se_bin
-  String  trnascan_pick_and_transform_to_gff_bin
-  Boolean rfam_execute
-  String  rfam_cmsearch_bin
-  String  rfam_clan_filter_bin
-  String    rfam_cm
-  String    rfam_claninfo_tsv
-  String    rfam_feature_lookup_tsv
-  Boolean crt_execute
-  String  crt_cli_jar
-  String  crt_transform_bin
-  Boolean prodigal_execute
-  String  prodigal_bin
-  String  unify_bin
-  Boolean genemark_execute
-  String  genemark_iso_bin
-  String  genemark_meta_bin
-  File    genemark_meta_model
-  String  gff_merge_bin
-  String  fasta_merge_bin
-  Boolean gff_and_fasta_stats_execute
-  String  gff_and_fasta_stats_bin
+  Boolean pre_qc_execute=true
+  Boolean trnascan_se_execute=false
+  Boolean rfam_execute=false
+  Boolean crt_execute=true
+  Boolean prodigal_execute=true
+  Boolean genemark_execute=true
+  Boolean gff_and_fasta_stats_execute=true
 
   if(pre_qc_execute) {
     call pre_qc {
       input:
-        bin = pre_qc_bin,
-        project_type = imgap_project_type,
         input_fasta = imgap_input_fasta,
-        project_id = imgap_project_id,
-        rename = pre_qc_rename
+        project_id = imgap_project_id
     }
   }
   if(trnascan_se_execute) {
     call trnascan.trnascan {
       input:
-        trnascan_se_bin = trnascan_se_bin,
-        pick_and_transform_to_gff_bin = trnascan_pick_and_transform_to_gff_bin,
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type,
         additional_threads = additional_threads
     }
   }
   if(rfam_execute) {
     call rfam.rfam {
       input:
-        cmsearch_bin = rfam_cmsearch_bin,
-        clan_filter_bin = rfam_clan_filter_bin,
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type,
-        cm = rfam_cm,
-        claninfo_tsv = rfam_claninfo_tsv,
-        feature_lookup_tsv = rfam_feature_lookup_tsv,
         additional_threads = additional_threads
     }
   }
   if(crt_execute) {
     call crt.crt {
       input:
-        crt_cli_jar = crt_cli_jar,
-        crt_transform_bin = crt_transform_bin,
         imgap_input_fasta = imgap_input_fasta,
         imgap_project_id = imgap_project_id
     }
@@ -90,28 +55,19 @@ workflow s_annotate {
   if(prodigal_execute) {
     call prodigal.prodigal {
       input:
-        prodigal_bin = prodigal_bin,
-        prodigal_unify_bin = unify_bin,
         imgap_input_fasta = imgap_input_fasta,
-        imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type
+        imgap_project_id = imgap_project_id
     }
   }
   if(genemark_execute) {
     call genemark.genemark {
       input:
-        genemark_iso_bin = genemark_iso_bin,
-        genemark_meta_bin = genemark_meta_bin,
-        genemark_meta_model = genemark_meta_model,
-        genemark_unify_bin = unify_bin,
         imgap_input_fasta = imgap_input_fasta,
-        imgap_project_id = imgap_project_id,
-        imgap_project_type = imgap_project_type
+        imgap_project_id = imgap_project_id
     }
   }
   call gff_merge {
     input:
-      bin = gff_merge_bin,
       input_fasta = imgap_input_fasta,
       project_id = imgap_project_id,
       misc_and_regulatory_gff = rfam.misc_bind_misc_feature_regulatory_gff,
@@ -125,7 +81,6 @@ workflow s_annotate {
   if(prodigal_execute || genemark_execute) {
     call fasta_merge {
       input:
-        bin = fasta_merge_bin,
         input_fasta = imgap_input_fasta,
         project_id = imgap_project_id,
         final_gff = gff_merge.final_gff,
@@ -138,31 +93,20 @@ workflow s_annotate {
   if(gff_and_fasta_stats_execute) {
     call gff_and_fasta_stats {
       input:
-        bin = gff_and_fasta_stats_bin,
         input_fasta = imgap_input_fasta,
         project_id = imgap_project_id,
         final_gff = gff_merge.final_gff
     }
   }
-  if(imgap_project_type == "isolate") {
-    call post_qc {
-      input:
-        qc_bin = post_qc_bin,
-        input_fasta = imgap_input_fasta,
-        project_id = imgap_project_id
-    }
-  }
   output {
-	File  gff = gff_merge.final_gff
-	#File  gff = post_qc.out
+    File  gff = gff_merge.final_gff
     File? proteins = fasta_merge.final_proteins 
   }
 }
 
 task pre_qc {
 
-  String bin
-  String project_type
+  String bin="/opt/omics/bin/qc/pre-annotation/fasta_sanity.py"
   File   input_fasta
   String project_id
   String rename = "yes"
@@ -184,29 +128,11 @@ task pre_qc {
         exit 1
     fi
 
-    if [[ ${project_type} == "isolate" ]]
-    then
-        seq_count=`grep -c '^>' $tmp_fasta`
-        bp_count=`grep -v '^>' $tmp_fasta | tr -d '\n' | wc -m`
-        seqs_per_million_bp=$seq_count
-        if (( $bp_count > 1000000 ))
-        then
-            divisor=$(echo $bp_count | awk '{printf "%.f", $1 / 1000000}')
-            seqs_per_million_bp=$(echo $seq_count $divisor | \
-                                  awk '{printf "%.2f", $1 / $2}')
-        fi
-        if (( $(echo "$seqs_per_million_bp > ${seqs_per_million_bp_cutoff}" | bc) ))
-        then
-            rm $tmp_fasta
-            exit 1
-        fi
-    fi
-
     fasta_sanity_cmd="${bin} $tmp_fasta $qced_fasta"
     if [[ ${rename} == "yes" ]]
     then
         fasta_sanity_cmd="$fasta_sanity_cmd -p ${project_id}"
-	fi
+    fi
     fasta_sanity_cmd="$fasta_sanity_cmd -l ${min_seq_length}"
     $fasta_sanity_cmd
     rm $tmp_fasta
@@ -222,7 +148,7 @@ task pre_qc {
     nwpn: 1
     constraint: "haswell"
   }
-	
+
   output {
     File fasta = "${project_id}_contigs.fna"
   }
@@ -230,7 +156,7 @@ task pre_qc {
 
 task gff_merge {
 
-  String bin
+  String bin="/opt/omics/bin/structural_annotation/gff_files_merger.py"
   File   input_fasta
   String project_id
   File?  misc_and_regulatory_gff
@@ -256,7 +182,6 @@ task gff_merge {
     node: 1
     nwpn: 1
     constraint: "haswell"
-	
   }
 
   output {
@@ -266,7 +191,7 @@ task gff_merge {
 
 task fasta_merge {
 
-  String bin
+  String bin = "/opt/omics/bin/structural_annotation/fasta_files_merger.py"
   File   input_fasta
   String project_id
   File   final_gff
@@ -290,7 +215,7 @@ task fasta_merge {
     nwpn: 1
     constraint: "haswell"
   }
-	
+
   output {
     File final_genes = "${project_id}_genes.fna"
     File final_proteins = "${project_id}_proteins.faa"
@@ -299,7 +224,7 @@ task fasta_merge {
 
 task gff_and_fasta_stats {
 
-  String bin
+  String bin="/opt/omics/bin/structural_annotation/gff_and_final_fasta_stats.py"
   File   input_fasta
   String project_id
   File   final_gff
@@ -318,31 +243,5 @@ task gff_and_fasta_stats {
     nwpn: 1
     constraint: "haswell"
   }
-	
 }
 
-task post_qc {
-
-  String qc_bin
-  File   input_fasta
-  String project_id
-
-  command {
-    ${qc_bin} ${input_fasta} "${project_id}_structural_annotation.gff"
-  }
-
-  runtime {
-    cluster: "cori"
-    time: "1:00:00"
-    mem: "86G"
-    poolname: "small"
-    shared: 1
-    node: 1
-    nwpn: 1
-    constraint: "haswell"
-  }
-	
-  output {
-    File out = "${project_id}_structural_annotation.gff"
-  }
-}

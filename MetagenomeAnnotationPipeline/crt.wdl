@@ -2,8 +2,8 @@ workflow crt {
 
   String imgap_input_fasta
   String imgap_project_id
-  String crt_cli_jar
-  String crt_transform_bin
+  String crt_cli_jar = "java -Xmx1536m -jar /opt/omics/bin/CRT-CLI.jar"
+  String crt_transform_bin =  "/opt/omics/bin/structural_annotation/transform_crt_output.py"
 
   call run {
     input:

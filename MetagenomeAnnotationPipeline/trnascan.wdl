@@ -2,10 +2,9 @@ workflow trnascan {
 
   String imgap_input_fasta
   String imgap_project_id
-  String imgap_project_type
   Int    additional_threads
-  String trnascan_se_bin
-  String pick_and_transform_to_gff_bin
+  String trnascan_se_bin = "/opt/omics/bin/tRNAscan-SE"
+  String pick_and_transform_to_gff_bin =  "/opt/omics/bin/structural_annotation/trna_pick_and_transform_to_gff.py"
 
   call trnascan_ba {
     input:

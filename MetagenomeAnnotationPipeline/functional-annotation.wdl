@@ -1,50 +1,43 @@
 workflow f_annotate {
 
+
   String  imgap_project_id
-  String  imgap_project_type
   Int     additional_threads
   File    input_fasta
-  Boolean ko_ec_execute
-  String  ko_ec_img_nr_db
-  String    ko_ec_md5_mapping
-  String    ko_ec_taxon_to_phylo_mapping
-  String  lastal_bin
-  String  selector_bin
-  Boolean smart_execute
+  File    sa_gff
+  # Defaults
+  Boolean ko_ec_execute=true
+  String  ko_ec_img_nr_db="/refdata/img/IMG-NR/20190607/img_nr"
+  String  ko_ec_md5_mapping="/refdata/img/IMG-NR/20190607/md5Hash2Data.txt"
+  String  ko_ec_taxon_to_phylo_mapping="/refdata/img/IMG-NR/20190607/taxonOid2Taxonomy.txt"
+  String  lastal_bin = "/opt/omics/bin/lastal"
+  String  selector_bin = "/opt/omics/bin/functional_annotation/lastal_img_nr_ko_ec_gene_phylo_hit_selector.py"
+  Boolean smart_execute=true
   Int?    par_hmm_inst
   Int?    approx_num_proteins
-  String    smart_db
-  String  hmmsearch_bin
-  String  frag_hits_filter_bin
-  Boolean cog_execute
-  String    cog_db
-  Boolean tigrfam_execute
-  String    tigrfam_db
-  String  hit_selector_bin
-  Boolean superfam_execute
-  String    superfam_db
-  Boolean pfam_execute
-  String    pfam_db
-  String    pfam_claninfo_tsv
-  String  pfam_clan_filter
-  Boolean cath_funfam_execute
-  String    cath_funfam_db
-  Boolean signalp_execute
-  String  signalp_gram_stain
-  String  signalp_bin
-  Boolean tmhmm_execute
-  String  tmhmm_model
-  String  tmhmm_decode
-  String  tmhmm_decode_parser
-  File    sa_gff
-  String  product_assign_bin
-  String  product_names_mapping_dir
+  String  smart_db="/refdata/img/SuperFamily/v1.75/supfam.hmm"
+  String  hmmsearch_bin = "/opt/omics/bin/hmmsearch"
+  String  frag_hits_filter_bin = "/opt/omics/bin/functional_annotation/hmmsearch_fragmented_hits_filter.py"
+  Boolean cog_execute=true
+  String  cog_db="/refdata/img/COG/HMMs/2003/COG.hmm"
+  Boolean tigrfam_execute=true
+  String  tigrfam_db="/refdata/img/TIGRFAM/v15.0/TIGRFAM.hmm"
+  String  hit_selector_bin = "/opt/omics/bin/functional_annotation/hmmsearch_hit_selector.py"
+  Boolean superfam_execute=true
+  String  superfam_db="/refdata/img/SMART/01_06_2016/SMART.hmm"
+  Boolean pfam_execute=true
+  String  pfam_db="/refdata/img/Pfam/Pfam-A-LATEST/Pfam-A.hmm"
+  String  pfam_claninfo_tsv="/refdata/img/Pfam/Pfam-A-LATEST/Pfam-A.clans.tsv"
+  String  pfam_clan_filter = "/opt/omics/bin/functional_annotation/pfam_clan_filter.py"
+  Boolean cath_funfam_execute=true
+  String  cath_funfam_db="/refdata/img/Cath-FunFam/v4.1.0/funfam.hmm"
+  String  product_assign_bin = "/opt/omics/bin/functional_annotation/assign_product_names_and_create_fa_gff.py"
+  String  product_names_mapping_dir="/refdata/img/Product_Name_Mappings/latest"
 
   if(ko_ec_execute) {
     call ko_ec {
       input:
         project_id = imgap_project_id,
-        project_type = imgap_project_type,
         input_fasta = input_fasta,
         threads = additional_threads,
         nr_db = ko_ec_img_nr_db,
@@ -133,25 +126,6 @@ workflow f_annotate {
         frag_hits_filter = frag_hits_filter_bin
     }
   }
-  if(imgap_project_type == "isolate" && signalp_execute) {
-    call signalp {
-      input:
-        project_id = imgap_project_id,
-        input_fasta = input_fasta,
-        gram_stain = signalp_gram_stain,
-        signalp = signalp_bin
-    }
-  }
-  if(imgap_project_type == "isolate" && tmhmm_execute) {
-    call tmhmm {
-      input:
-        project_id = imgap_project_id,
-        input_fasta = input_fasta,
-        model = tmhmm_model,
-        decode = tmhmm_decode,
-        decode_parser = tmhmm_decode_parser
-    }
-  }
   call product_name {
     input:
       project_id = imgap_project_id,
@@ -164,16 +138,14 @@ workflow f_annotate {
       tigrfam_gff = tigrfam.gff,
       supfam_gff = superfam.gff,
       pfam_gff = pfam.gff,
-      cath_funfam_gff = cath_funfam.gff,
-      signalp_gff = signalp.gff,
-      tmhmm_gff = tmhmm.gff
+      cath_funfam_gff = cath_funfam.gff
   }
 }
 
 task ko_ec {
 
   String project_id
-  String project_type
+  String project_type = "metagenome"
   Int    threads = 2
   File   input_fasta
   String nr_db
@@ -839,71 +811,6 @@ task cath_funfam {
   }
 }
 
-task signalp {
-  
-  String project_id
-  File   input_fasta
-  String gram_stain
-  String signalp
-
-  command <<<
-    signalp_version=$(${signalp} -V)
-    ${signalp} -t ${gram_stain} -f short ${input_fasta} | \
-    grep -v '^#' | \
-    awk -v sv="$signalp_version" -v ot="${gram_stain}" \
-        '$10 == "Y" {print $1"\t"sv"\tcleavage_site\t"$3-1"\t"$3"\t"$2\
-        "\t.\t.\tD-score="$9";network="$12";organism_type="ot}' > ${project_id}_cleavage_sites.gff
-  >>>
-
-  runtime {
-    cluster: "cori"
-    time: "1:00:00"
-    mem: "86G"
-    poolname: "small"
-    shared: 1
-    node: 1
-    nwpn: 1
-    constraint: "haswell"
-  }
-
-  output {
-    File gff = "${project_id}_cleavage_sites.gff"
-  }
-}
-
-task tmhmm {
-  
-  String project_id
-  File   input_fasta
-  String model
-  String decode
-  String decode_parser
-
-  command <<<
-    tool_and_version=$(${decode} -v 2>&1 | head -1)
-    background="0.081 0.015 0.054 0.061 0.040 0.068 0.022 0.057 0.056 0.093 0.025"
-    background="$background 0.045 0.049 0.039 0.057 0.068 0.058 0.067 0.013 0.032"
-    sed 's/\*/X/g' ${input_fasta} | \
-    ${decode} -N 1 -background $background -PrintNumbers \
-    ${model} 2> /dev/null | ${decode_parser} "$tool_and_version" > ${project_id}_tmh.gff
-  >>>
-
-  runtime {
-    cluster: "cori"
-    time: "1:00:00"
-    mem: "86G"
-    poolname: "small"
-    shared: 1
-    node: 1
-    nwpn: 1
-    constraint: "haswell"
-  }
-
-  output {
-    File gff = "${project_id}_tmh.gff"
-  }
-}
-
 task product_name {
   
   String project_id
@@ -917,13 +824,11 @@ task product_name {
   File?  supfam_gff
   File?  pfam_gff
   File?  cath_funfam_gff
-  File?  signalp_gff
-  File?  tmhmm_gff
 
   command {
     ${product_assign} ${"-k " + ko_ec_gff} ${"-s " + smart_gff} ${"-c " + cog_gff} \
                       ${"-t " + tigrfam_gff} ${"-u " + supfam_gff} ${"-p " + pfam_gff} \
-                      ${"-f " + cath_funfam_gff} ${"-e " + signalp_gff} ${"-r " + tmhmm_gff} \
+                      ${"-f " + cath_funfam_gff} \
                       ${map_dir} ${sa_gff}
     mv ../inputs/*/*.gff .
   }

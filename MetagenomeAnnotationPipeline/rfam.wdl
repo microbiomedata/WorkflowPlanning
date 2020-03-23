@@ -2,13 +2,12 @@ workflow rfam {
 
   String imgap_input_fasta
   String imgap_project_id
-  String imgap_project_type
   Int    additional_threads
-  File   cmsearch_bin
-  File   cm
-  File   claninfo_tsv
-  File   feature_lookup_tsv
-  String clan_filter_bin
+  String   cmsearch_bin =  "/opt/omics/bin/cmsearch"
+  String   cm="/refdata/img/Rfam/13.0/Rfam.cm"
+  String   claninfo_tsv="/refdata/img/Rfam/13.0/Rfam.claninfo"
+  String   feature_lookup_tsv="/refdata/img/Rfam/13.0/Rfam_feature_lookup.tsv"
+  String clan_filter_bin = "/opt/omics/bin/structural_annotation/rfam_clan_filter.py"
 
 
   call cmsearch {
@@ -60,7 +59,7 @@ task cmsearch {
   String bin
   File   input_fasta
   String project_id
-  File   cm
+  String   cm
   Int    threads
 
   command {
@@ -89,8 +88,8 @@ task clan_filter {
   String project_id
   File   tbl
   String cmsearch_bin
-  File   claninfo_tsv
-  File   feature_lookup_tsv
+  String   claninfo_tsv
+  String   feature_lookup_tsv
 
   command <<<
     tool_and_version=$(${cmsearch_bin} -h | grep INFERNAL | cut -d' ' -f3)
