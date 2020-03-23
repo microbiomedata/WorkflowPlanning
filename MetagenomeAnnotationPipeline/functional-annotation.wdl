@@ -212,7 +212,7 @@ task smart {
         blocksize=$((($filesize / ${par_hmm_inst}) + 20000))
 
         hmmsearch_base_cmd="${hmmsearch} --notextw --domE ${min_domain_eval_cutoff}"
-		# TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+        # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
         if [[ ${approx_num_proteins} -gt 0 ]]
         then
             hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -226,8 +226,8 @@ task smart {
 #                             $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.smart.$$.domtblout \
 #                             ${smart_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		# TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
-		$hmmsearch_base_cmd --domtblout $tmp_dir/tmp.smart.$$.domtblout ${smart_db} ${input_fasta} 1> /dev/null
+        # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+        $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.smart.$$.domtblout ${smart_db} ${input_fasta} 1> /dev/null
 
         exit_code=$?
         if [[ $exit_code -ne 0 ]]
@@ -317,7 +317,7 @@ task cog {
         blocksize=$((($filesize / $number_of_parallel_instances) + 30000))
 
         hmmsearch_base_cmd="${hmmsearch} --notextw --domE ${min_domain_eval_cutoff}"
-		# TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+        # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
         if [[ ${approx_num_proteins} -gt 0 ]]
         then
             hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -325,7 +325,7 @@ task cog {
         hmmsearch_base_cmd="$hmmsearch_base_cmd --cpu $hmmsearch_threads "
         # Use parallel to split up the input and
         # run hmmsearch in parallel on those splits
-		
+
 #        cat ${input_fasta} | parallel --pipe --recstart '>' \
 #                             --blocksize $blocksize \
 #                             cat > $tmp_dir/tmp.$$.split.faa;  \
@@ -333,7 +333,7 @@ task cog {
 #                             --domtblout $tmp_dir/tmp.cog.$$.domtblout \
 #                             ${cog_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		# TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+        # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
         $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.cog.$$.domtblout ${cog_db} ${input_fasta} 1> /dev/null
 
         exit_code=$?
@@ -392,7 +392,7 @@ task cog {
 
   output {
     File gff = "${project_id}_cog.gff"
-	File domtblout = "${project_id}_proteins.cog.domtblout"
+    File domtblout = "${project_id}_proteins.cog.domtblout"
   }
 }
 
@@ -421,7 +421,7 @@ task tigrfam {
           blocksize=$((($filesize / ${par_hmm_inst}) + 20000))
 
           hmmsearch_base_cmd="${hmmsearch} --notextw --cut_nc"
-		  #TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+          #TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
           #if [[ ${par_hmm_inst} -gt 0 ]]
           #then
           #    hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -436,7 +436,7 @@ task tigrfam {
 #                               --domtblout $tmp_dir/tmp.tigrfam.$$.domtblout \
 #                                ${tigrfam_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		  # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+          # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
           $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.tigrfam.$$.domtblout ${tigrfam_db} ${input_fasta} 1> /dev/null
 
           exit_code=$?
@@ -496,7 +496,7 @@ task tigrfam {
 
   output {
     File gff = "${project_id}_tigrfam.gff"
-	File domtblout = "${project_id}_proteins.tigrfam.domtblout"
+    File domtblout = "${project_id}_proteins.tigrfam.domtblout"
   }
 }
 
@@ -517,8 +517,8 @@ task superfam {
   command <<<
     if [[ ${threads} -gt ${par_hmm_inst} ]]
       then
-		  # from marcel's original code
-	      #hmmsearch_threads=$(echo $number_of_additional_threads / $number_of_parallel_hmmsearch_instances | bc)
+          # from marcel's original code
+          #hmmsearch_threads=$(echo $number_of_additional_threads / $number_of_parallel_hmmsearch_instances | bc)
           hmmsearch_threads=$(echo ${threads} / ${par_hmm_inst} | bc)
           printf "$(date +%F_%T) - Splitting up proteins fasta into ${par_hmm_inst} "
           printf "pieces now and then run hmmsearch on them separately with $hmmsearch_threads "
@@ -528,7 +528,7 @@ task superfam {
           blocksize=$((($filesize / ${par_hmm_inst}) + 20000))
 
           hmmsearch_base_cmd="${hmmsearch} --notextw --domE ${min_domain_eval_cutoff}"
-		  # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+          # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
           if [[ ${approx_num_proteins} -gt 0 ]]
           then
               hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -543,7 +543,7 @@ task superfam {
 #                               --domtblout $tmp_dir/tmp.supfam.$$.domtblout \
 #                               ${superfam_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		  # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+          # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
           $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.supfam.$$.domtblout ${superfam_db} ${input_fasta} 1> /dev/null
 
           exit_code=$?
@@ -600,7 +600,7 @@ task superfam {
 
   output {
     File gff = "${project_id}_supfam.gff"
-	File domtblout = "${project_id}_proteins.supfam.domtblout"
+    File domtblout = "${project_id}_proteins.supfam.domtblout"
   }
 }
 
@@ -628,7 +628,7 @@ task pfam {
         blocksize=$((($filesize / ${par_hmm_inst}) + 20000))
 
         hmmsearch_base_cmd="${hmmsearch} --notextw --cut_tc"
-		# TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+        # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
         if [[ ${approx_num_proteins} -gt 0 ]]
         then
             hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -643,7 +643,7 @@ task pfam {
 #                             --domtblout $tmp_dir/tmp.pfam.$$.domtblout \
 #                             ${pfam_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		# TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+        # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
         $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.pfam.$$.domtblout ${pfam_db} ${input_fasta} 1> /dev/null
 
         exit_code=$?
@@ -702,7 +702,7 @@ task pfam {
 
   output {
     File gff = "${project_id}_pfam.gff"
-	File domtblout = "${project_id}_proteins.pfam.domtblout"
+    File domtblout = "${project_id}_proteins.pfam.domtblout"
   }
 }
 
@@ -732,7 +732,7 @@ task cath_funfam {
         blocksize=$((($filesize / ${par_hmm_inst}) + 20000))
 
         hmmsearch_base_cmd="${hmmsearch} --notextw --domE ${min_domain_eval_cutoff}"
-		# TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
+        # TODO: jeff use default -Z setting for hmmscan until approx_num_proteins gets assigned by marcel
         if [[ ${approx_num_proteins} -gt 0 ]]
         then
             hmmsearch_base_cmd="$hmmsearch_base_cmd -Z ${approx_num_proteins}"
@@ -747,7 +747,7 @@ task cath_funfam {
 #                             --domtblout $tmp_dir/tmp.cath_funfam.$$.domtblout \
 #                             ${cath_funfam_db} $tmp_dir/tmp.$$.split.faa 1> /dev/null;
 
-		# TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
+        # TODO: jeff removed parallel command since I couldn't get it working when using the obligate shifter version
         $hmmsearch_base_cmd --domtblout $tmp_dir/tmp.cath_funfam.$$.domtblout ${cath_funfam_db} ${input_fasta} 1> /dev/null
 
         exit_code=$?
@@ -807,7 +807,7 @@ task cath_funfam {
 
   output {
     File gff = "${project_id}_cath_funfam.gff"
-	File domtblout = "${project_id}_proteins.cath_funfam.domtblout"
+    File domtblout = "${project_id}_proteins.cath_funfam.domtblout"
   }
 }
 
